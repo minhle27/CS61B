@@ -5,7 +5,7 @@ import java.util.Observable;
 
 
 /** The state of a game of 2048.
- *  @author TODO: YOUR NAME HERE
+ *  @author Minh Le
  */
 public class Model extends Observable {
     /** Current contents of the board. */
@@ -138,6 +138,15 @@ public class Model extends Observable {
      * */
     public static boolean emptySpaceExists(Board b) {
         // TODO: Fill in this function.
+        // Finished
+        int size = b.size();
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (b.tile(i, j) == null) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -147,7 +156,15 @@ public class Model extends Observable {
      * given a Tile object t, we get its value with t.value().
      */
     public static boolean maxTileExists(Board b) {
+        int size = b.size();
         // TODO: Fill in this function.
+        // finished
+        int max_tile = -1;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (b.tile(i, j) != null && b.tile(i, j).value() == MAX_PIECE) return true;
+            }
+        }
         return false;
     }
 
@@ -159,7 +176,26 @@ public class Model extends Observable {
      */
     public static boolean atLeastOneMoveExists(Board b) {
         // TODO: Fill in this function.
-        return false;
+        if (emptySpaceExists(b)) {
+            return true;
+        } else {
+            int[] dx = new int[]{0, 0, 1, -1};
+            int[] dy = new int[]{-1, 1, 0, 0};
+            int size = b.size();
+
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    for (int k = 0; k < 4; k++){
+                        int u = i + dx[k];
+                        int v = j + dy[k];
+                        if (0 <= u && u < size && 0 <= v && v < size && b.tile(u, v).value() == b.tile(i, j).value()){
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
     }
 
 
