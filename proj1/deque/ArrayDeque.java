@@ -20,7 +20,7 @@ public class ArrayDeque<T> {
 
     private int findCurLast() {
         int curLast = nextL - 1;
-        if (curLast < 0) curLast = items.length;
+        if (curLast < 0) curLast = items.length - 1;
         return curLast;
     }
 
@@ -105,19 +105,21 @@ public class ArrayDeque<T> {
     public T removeFirst() {
         if (size == 0) return null;
         int curFirst = findCurFirst();
+        T firstItem = items[curFirst];
         nextF = curFirst;
         size--;
-        if (findUsageRatio() < 0.25) resize(items.length / 2);
-        return items[curFirst];
+        if (findUsageRatio() < 0.25 && size > 0) resize(items.length / 2);
+        return firstItem;
     }
 
     public T removeLast() {
         if (size == 0) return null;
         int curLast = findCurLast();
+        T lastItem = items[curLast];
         nextL = curLast;
         size--;
-        if (findUsageRatio() < 0.25) resize(items.length / 2);
-        return items[curLast];
+        if (findUsageRatio() < 0.25 && size > 0) resize(items.length / 2);
+        return lastItem;
     }
 
     public T get(int index) {
