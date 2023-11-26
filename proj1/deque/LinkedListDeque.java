@@ -1,6 +1,10 @@
 package deque;
 
-public class LinkedListDeque<T> {
+import org.antlr.v4.runtime.misc.NotNull;
+
+import java.util.Iterator;
+
+public class LinkedListDeque<T> implements Iterable<T> {
     private class Node {
         public Node prev;
         public T item;
@@ -14,10 +18,33 @@ public class LinkedListDeque<T> {
 
     }
 
+    private class LLDIterator implements Iterator<T> {
+        private Node cur;
+
+        public LLDIterator() {
+            cur = sentF.next;
+        }
+        @Override
+        public boolean hasNext() {
+            return cur != sentL;
+        }
+
+        @Override
+        public T next() {
+            T returnItem = cur.item;
+            cur = cur.next;
+            return returnItem;
+        }
+    }
+
     /*The first item, if it exists, is at sentinel.next. */
     private Node sentF;
     private Node sentL;
     private int size;
+
+    public Iterator<T> iterator() {
+        return new LLDIterator();
+    }
 
     public LinkedListDeque(T x) {
         sentF = new Node(null, null, null);
@@ -110,14 +137,43 @@ public class LinkedListDeque<T> {
         return getRecursive(0, index, sentF.next);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof LinkedListDeque)) {
+            return false;
+        }
+
+        LinkedListDeque<T> o = (LinkedListDeque<T>) other;
+
+        if (o.size() != this.size()) {
+            return false;
+        }
+
+        Node cur_other = o.sentF.next;
+        for (T item : this) {
+            if (!item.equals(cur_other.item)) {
+                return false;
+            }
+            cur_other = cur_other.next;
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
         /* Create a list of 1 integer */
         LinkedListDeque<Integer> L = new LinkedListDeque<>();
-        System.out.println("yes");
-        L.printDeque();
         L.addFirst(15);
         L.addFirst(27);
         L.addLast(39);
         L.printDeque();
+
+        //iteration
+        for (int i : L) {
+            System.out.println(i);
+        }
     }
 }
