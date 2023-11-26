@@ -118,6 +118,7 @@ public class LinkedListDequeTest {
         LinkedListDeque<String> lld3 = new LinkedListDeque<>();
         LinkedListDeque<Integer> lld4 = new LinkedListDeque<>();
         LinkedListDeque<Integer> lld5 = new LinkedListDeque<>();
+        String lld6 = "abcd";
 
         // init
         for (int i = 0; i < 1000000; i++) {
@@ -132,5 +133,6 @@ public class LinkedListDequeTest {
         assertTrue(!lld1.equals(null));
         assertTrue(!lld1.equals(lld3));
         assertTrue(!lld1.equals(lld4));
+        assertTrue(!lld1.equals(lld6));
     }
 }
