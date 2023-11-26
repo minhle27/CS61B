@@ -1,10 +1,36 @@
 package deque;
 
-public class ArrayDeque<T> {
+import java.util.Iterator;
+
+public class ArrayDeque<T> implements Iterable<T> {
     private int size;
     private int nextF;
     private int nextL;
     private T[] items;
+
+    private class ADIterator implements Iterator<T> {
+        private int cur;
+        public ADIterator() {
+            cur = findCurFirst();
+        }
+        @Override
+        public boolean hasNext() {
+            return cur != nextL;
+        }
+
+        @Override
+        public T next() {
+            T returnItem = items[cur];
+            cur++;
+            if (cur >= items.length) cur = 0;
+            return returnItem;
+        }
+    }
+
+    public Iterator<T> iterator() {
+        return new ADIterator();
+    }
+
     public ArrayDeque() {
         items = (T[]) new Object[8];
         size = 0;
@@ -84,20 +110,8 @@ public class ArrayDeque<T> {
             System.out.println("Empty Deque");
             return;
         }
-        int curFirst = findCurFirst();
-        int curLast = findCurLast();
-        if (curFirst <= curLast) {
-            for (int i = curFirst; i <= curLast; i++) {
-                System.out.print(items[i] + " ");
-            }
-        }
-        else {
-            for (int i = curFirst; i < items.length; i++) {
-                System.out.print(items[i] + " ");
-            }
-            for (int i = 0; i <= curLast; i++) {
-                System.out.print(items[i] + " ");
-            }
+        for (T item : this) {
+            System.out.print(item + " ");
         }
         System.out.println();
     }
@@ -125,11 +139,34 @@ public class ArrayDeque<T> {
     public T get(int index) {
         if (index >= size) return null;
         int curFirst = findCurFirst();
-        int curLast = findCurLast();
         if (curFirst + index >= items.length) {
             return items[index - (items.length - curFirst)];
         }
         return items[curFirst + index];
+    }
+
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (!(other instanceof ArrayDeque)) {
+            return false;
+        }
+
+        ArrayDeque<T> o = (ArrayDeque<T>) other;
+
+        if (o.size() != this.size()) {
+            return false;
+        }
+
+        Iterator<T> it = o.iterator();
+        for (T item : this) {
+            if (!item.equals(it.next())) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -156,10 +193,5 @@ public class ArrayDeque<T> {
         L.addLast('k');
         L.addFirst('l');
         L.printDeque();
-        System.out.println(L.size());
-        for (int i = 0; i < 18; i++) {
-            L.removeFirst();
-            L.printDeque();
-        }
     }
 }

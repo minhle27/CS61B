@@ -109,6 +109,31 @@ public class ArrayDequeTest {
     }
 
     @Test
+    public void equalsTest() {
+        ArrayDeque<Integer> ad1 = new ArrayDeque<>();
+        ArrayDeque<Integer> ad2 = new ArrayDeque<>();
+        ArrayDeque<String> ad3 = new ArrayDeque<>();
+        ArrayDeque<Integer> ad4 = new ArrayDeque<>();
+        LinkedListDeque<Integer> lld5 = new LinkedListDeque<>();
+
+        // init
+        for (int i = 0; i < 1000000; i++) {
+            ad1.addLast(i);
+            ad2.addLast(i);
+            ad3.addLast("abcd");
+            ad4.addLast(1000000 - i - 1);
+            lld5.addLast(i);
+        }
+
+        // Test
+        assertTrue(ad1.equals(ad2));
+        assertTrue(!ad1.equals(null));
+        assertTrue(!ad1.equals(ad3));
+        assertTrue(!ad1.equals(ad4));
+        assertTrue(!ad1.equals(lld5));
+    }
+
+    @Test
     public void randomizedComparisonTest() {
         ArrayDeque<Integer> l1 = new ArrayDeque<>();
         LinkedListDeque<Integer> l2 = new LinkedListDeque<>();
