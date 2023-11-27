@@ -87,7 +87,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
 
     @Override
     public T removeFirst() {
-        if (size == 0){
+        if (size == 0) {
             return null;
         }
         T item = sentF.next.item;
