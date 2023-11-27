@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Iterable<T> {
+public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
     private class Node {
         public Node prev;
         public T item;
@@ -64,6 +64,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         size = 0;
     }
 
+    @Override
     public void addFirst(T item) {
         Node new_first = new Node(item, sentF.next, sentF);
         sentF.next.prev = new_first;
@@ -71,6 +72,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         size += 1;
     }
 
+    @Override
     public void addLast(T item) {
         Node new_last = new Node(item, sentL, sentL.prev);
         sentL.prev.next = new_last;
@@ -78,14 +80,13 @@ public class LinkedListDeque<T> implements Iterable<T> {
         size += 1;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         Node p = sentF;
         while (p.next != sentL) {
@@ -95,6 +96,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst() {
         if (size == 0) return null;
         T item = sentF.next.item;
@@ -104,6 +106,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         return item;
     }
 
+    @Override
     public T removeLast() {
         if (size == 0) return null;
         T item = sentL.prev.item;
@@ -113,6 +116,7 @@ public class LinkedListDeque<T> implements Iterable<T> {
         return item;
     }
 
+    @Override
     public T get(int index) {
         if (index >= size) return null;
         int tmp = index;

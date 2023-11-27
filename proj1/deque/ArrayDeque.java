@@ -2,7 +2,7 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Iterable<T> {
+public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private int size;
     private int nextF;
     private int nextL;
@@ -79,6 +79,7 @@ public class ArrayDeque<T> implements Iterable<T> {
         items = tmp;
     }
 
+    @Override
     public void addFirst(T item) {
         items[nextF] = item;
         size++;
@@ -89,6 +90,7 @@ public class ArrayDeque<T> implements Iterable<T> {
         if (size == items.length) resize(size * 2);
     }
 
+    @Override
     public void addLast(T item) {
         items[nextL] = item;
         size++;
@@ -97,14 +99,13 @@ public class ArrayDeque<T> implements Iterable<T> {
         if (size == items.length) resize(size * 2);
     }
 
-    public boolean isEmpty() {
-        return size == 0;
-    }
 
+    @Override
     public int size() {
         return size;
     }
 
+    @Override
     public void printDeque() {
         if (size == 0) {
             System.out.println("Empty Deque");
@@ -116,6 +117,7 @@ public class ArrayDeque<T> implements Iterable<T> {
         System.out.println();
     }
 
+    @Override
     public T removeFirst() {
         if (size == 0) return null;
         int curFirst = findCurFirst();
@@ -126,6 +128,7 @@ public class ArrayDeque<T> implements Iterable<T> {
         return firstItem;
     }
 
+    @Override
     public T removeLast() {
         if (size == 0) return null;
         int curLast = findCurLast();
@@ -136,6 +139,7 @@ public class ArrayDeque<T> implements Iterable<T> {
         return lastItem;
     }
 
+    @Override
     public T get(int index) {
         if (index >= size) return null;
         int curFirst = findCurFirst();
