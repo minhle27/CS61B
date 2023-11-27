@@ -10,7 +10,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
 
     private class ADIterator implements Iterator<T> {
         private int cur;
-        public ADIterator() {
+        ADIterator() {
             cur = findCurFirst();
         }
         @Override
@@ -22,7 +22,9 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         public T next() {
             T returnItem = items[cur];
             cur++;
-            if (cur >= items.length) cur = 0;
+            if (cur >= items.length) {
+                cur = 0;
+            }
             return returnItem;
         }
     }
@@ -40,13 +42,17 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
 
     private int findCurFirst() {
         int curFirst = nextF + 1;
-        if (curFirst >= items.length) curFirst = 0;
+        if (curFirst >= items.length) {
+            curFirst = 0;
+        }
         return curFirst;
     }
 
     private int findCurLast() {
         int curLast = nextL - 1;
-        if (curLast < 0) curLast = items.length - 1;
+        if (curLast < 0) {
+            curLast = items.length - 1;
+        }
         return curLast;
     }
 
@@ -65,8 +71,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
             for (int i = curFirst; i <= curLast; i++) {
                 tmp[k++] = items[i];
             }
-        }
-        else {
+        } else {
             for (int i = curFirst; i < items.length; i++) {
                 tmp[k++] = items[i];
             }
@@ -85,9 +90,13 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         size++;
         nextF--;
         // circulate
-        if (nextF < 0) nextF = items.length - 1;
+        if (nextF < 0) {
+            nextF = items.length - 1;
+        }
         // need to resize as array is full now
-        if (size == items.length) resize(size * 2);
+        if (size == items.length) {
+            resize(size * 2);
+        }
     }
 
     @Override
@@ -95,8 +104,12 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         items[nextL] = item;
         size++;
         nextL++;
-        if (nextL >= items.length) nextL = 0;
-        if (size == items.length) resize(size * 2);
+        if (nextL >= items.length) {
+            nextL = 0;
+        }
+        if (size == items.length) {
+            resize(size * 2);
+        }
     }
 
 
@@ -119,29 +132,39 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
 
     @Override
     public T removeFirst() {
-        if (size == 0) return null;
+        if (size == 0) {
+            return null;
+        }
         int curFirst = findCurFirst();
         T firstItem = items[curFirst];
         nextF = curFirst;
         size--;
-        if (findUsageRatio() < 0.25 && size > 0) resize(items.length / 2);
+        if (findUsageRatio() < 0.25 && size > 0) {
+            resize(items.length / 2);
+        }
         return firstItem;
     }
 
     @Override
     public T removeLast() {
-        if (size == 0) return null;
+        if (size == 0) {
+            return null;
+        }
         int curLast = findCurLast();
         T lastItem = items[curLast];
         nextL = curLast;
         size--;
-        if (findUsageRatio() < 0.25 && size > 0) resize(items.length / 2);
+        if (findUsageRatio() < 0.25 && size > 0) {
+            resize(items.length / 2);
+        }
         return lastItem;
     }
 
     @Override
     public T get(int index) {
-        if (index >= size) return null;
+        if (index >= size) {
+            return null;
+        }
         int curFirst = findCurFirst();
         if (curFirst + index >= items.length) {
             return items[index - (items.length - curFirst)];
@@ -154,48 +177,31 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
             return true;
         }
 
-        if (!(other instanceof ArrayDeque)) {
-            return false;
-        }
-
-        ArrayDeque<T> o = (ArrayDeque<T>) other;
-
-        if (o.size() != this.size()) {
-            return false;
-        }
-
-        Iterator<T> it = o.iterator();
-        for (T item : this) {
-            if (!item.equals(it.next())) {
+        if (other instanceof ArrayDeque) {
+            ArrayDeque<T> o = (ArrayDeque<T>) other;
+            if (o.size() != this.size()) {
                 return false;
             }
+            Iterator<T> it = o.iterator();
+            for (T item : this) {
+                if (!item.equals(it.next())) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (other instanceof LinkedListDeque) {
+            LinkedListDeque<T> o = (LinkedListDeque<T>) other;
+            if (o.size() != this.size()) {
+                return false;
+            }
+            Iterator<T> it = o.iterator();
+            for (T item : this) {
+                if (!item.equals(it.next())) {
+                    return false;
+                }
+            }
+            return true;
         }
-        return true;
-    }
-
-
-    public static void main(String[] args) {
-        /* Create a list of 1 integer */
-        ArrayDeque<Character> L = new ArrayDeque<>();
-        L.addLast('a');
-        L.addLast('b');
-        L.addFirst('c');
-        L.addLast('d');
-        L.addLast('e');
-        L.addFirst('f');
-        L.addLast('g');
-        L.addLast('h');
-        L.addLast('z');
-        L.addFirst('w');
-        L.addFirst('w');
-        L.addFirst('w');
-        L.addLast('d');
-        L.addLast('d');
-        L.addLast('d');
-        L.addLast('l');
-        L.addLast('i');
-        L.addLast('k');
-        L.addFirst('l');
-        L.printDeque();
+        return false;
     }
 }

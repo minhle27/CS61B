@@ -19,21 +19,13 @@ public class GuitarString {
         int capacity = (int) Math.round(SR / frequency);
         buffer = new ArrayDeque<>();
         for (int i = 0; i < capacity; i++) {
-            buffer.addLast((double)0);
+            buffer.addLast((double) 0);
         }
     }
 
 
     /* Pluck the guitar string by replacing the buffer with white noise. */
     public void pluck() {
-        // TODO: Dequeue everything in buffer, and replace with random numbers
-        //       between -0.5 and 0.5. You can get such a number by using:
-        //       double r = Math.random() - 0.5;
-        //
-        //       Make sure that your random numbers are different from each
-        //       other. This does not mean that you need to check that the numbers
-        //       are different from each other. It means you should repeatedly call
-        //       Math.random() - 0.5 to generate new random numbers for each array index.
         for (int i = 0; i < buffer.size(); i++) {
             buffer.removeFirst();
             double r = Math.random() - 0.5;
@@ -45,9 +37,6 @@ public class GuitarString {
      * the Karplus-Strong algorithm.
      */
     public void tic() {
-        // TODO: Dequeue the front sample and enqueue a new sample that is
-        //       the average of the two multiplied by the DECAY factor.
-        //       **Do not call StdAudio.play().**
         double frontSample1 = buffer.removeFirst();
         double frontSample2 = buffer.get(0);
         double newSample = (frontSample1 + frontSample2) * 0.5 * DECAY;
@@ -56,8 +45,6 @@ public class GuitarString {
 
     /* Return the double at the front of the buffer. */
     public double sample() {
-        // TODO: Return the correct thing.
         return buffer.get(0);
     }
 }
-    // TODO: Remove all comments that say TODO when you're done.

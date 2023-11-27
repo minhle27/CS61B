@@ -119,6 +119,7 @@ public class LinkedListDequeTest {
         LinkedListDeque<Integer> lld4 = new LinkedListDeque<>();
         LinkedListDeque<Integer> lld5 = new LinkedListDeque<>();
         String lld6 = "abcd";
+        ArrayDeque<Integer> lld7 = new ArrayDeque<>();
 
         // init
         for (int i = 0; i < 1000000; i++) {
@@ -126,6 +127,7 @@ public class LinkedListDequeTest {
             lld3.addLast("abcd");
             lld4.addLast(1000000 - i - 1);
             lld5.addLast(i);
+            lld7.addLast(i);
         }
 
         // Test
@@ -134,5 +136,6 @@ public class LinkedListDequeTest {
         assertTrue(!lld1.equals(lld3));
         assertTrue(!lld1.equals(lld4));
         assertTrue(!lld1.equals(lld6));
+        assertTrue(lld1.equals(lld7));
     }
 }

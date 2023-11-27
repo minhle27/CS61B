@@ -130,7 +130,7 @@ public class ArrayDequeTest {
         assertTrue(!ad1.equals(null));
         assertTrue(!ad1.equals(ad3));
         assertTrue(!ad1.equals(ad4));
-        assertTrue(!ad1.equals(lld5));
+        assertTrue(ad1.equals(lld5));
     }
 
     @Test
