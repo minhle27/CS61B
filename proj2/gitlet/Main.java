@@ -22,6 +22,7 @@ public class Main {
         switch(firstArg) {
             case "init":
                 // TODO: handle the `init` command
+                validateNumArgs("init", args, 1);
                 Repository.initGitLet();
                 break;
             case "add":
@@ -49,6 +50,9 @@ public class Main {
             case "reset":
                 break;
             case "merge":
+                break;
+            default:
+                message("No command with that name exists.");
                 break;
         }
     }
