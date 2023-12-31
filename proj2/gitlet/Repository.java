@@ -27,15 +27,19 @@ public class Repository {
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
+    public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
+    public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
+    public static final File INDEX_FILE = join(GITLET_DIR, "index");
+    public static final File REFS_DIR = join(GITLET_DIR, "refs");
+
     /* TODO: fill in the rest of this class. */
     /** Set up files and directories to persist data */
     public static void setupPersistence() throws IOException {
-        GITLET_DIR.mkdirs();
-
-        /** TODO: explore real .git folder to see how everything is structured
-         * Protips: use tree .gitlet to see directory structure
-         * */
-
+        GITLET_DIR.mkdir();
+        HEAD_FILE.createNewFile();
+        OBJECTS_DIR.mkdirs();
+        INDEX_FILE.createNewFile();
+        REFS_DIR.mkdirs();
     }
 
     /** Init Gitlet */
@@ -45,6 +49,7 @@ public class Repository {
             System.exit(0);
         }
         setupPersistence();
-        // Commit initialCommit = new Commit();
+        Commit initialCommit = new Commit();
+        Helpers.saveCommit(initialCommit);
     }
 }
