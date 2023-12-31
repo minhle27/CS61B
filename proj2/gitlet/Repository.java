@@ -60,6 +60,10 @@ public class Repository {
 
     /** Add File to staging area */
     public static void addFile(String filename) throws IOException {
+        if (!GITLET_DIR.exists()) {
+            message("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
         File toAdd = join(CWD, filename);
         if (!toAdd.exists()) {
             message("File does not exist.");
