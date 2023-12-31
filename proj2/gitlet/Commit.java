@@ -31,7 +31,8 @@ public class Commit implements Serializable {
     /** The parent reference of this Commit. */
     private String par;
 
-    private TreeMap<String, String> m;
+    /** The reference of mapping data structure. */
+    private String mapping;
 
     public Commit(String message, String par) {
         this.message = message;
@@ -43,7 +44,7 @@ public class Commit implements Serializable {
         this.message = "initial commit";
         this.timestamp = new Date(0);
         this.par = "";
-        this.m = null;
+        this.mapping = "";
     }
 
     public String getMessage() {
@@ -64,13 +65,7 @@ public class Commit implements Serializable {
         sb.append("Commit Message: ").append(message).append("\n");
         sb.append("Timestamp: ").append(timestamp).append("\n");
         sb.append("Parent Commit: ").append(par).append("\n");
-        // Additional code if you want to include the TreeMap
-        if (m != null) {
-            sb.append("Mapping:\n");
-            for (String file : m.keySet()) {
-                sb.append(file).append(": ").append(m.get(file)).append("\n");
-            }
-        }
+        sb.append("Commit: ").append(mapping).append("\n");
         return sb.toString();
     }
 }
