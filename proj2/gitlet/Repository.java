@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.TreeMap;
 
 import static gitlet.Utils.*;
 
@@ -26,11 +27,11 @@ public class Repository {
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
-
     public static final File HEAD_FILE = join(GITLET_DIR, "HEAD");
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     public static final File INDEX_FILE = join(GITLET_DIR, "index");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
+    public static TreeMap<String, String> stagingArea;
 
     /* TODO: fill in the rest of this class. */
     /** Set up files and directories to persist data */
@@ -51,5 +52,50 @@ public class Repository {
         setupPersistence();
         Commit initialCommit = new Commit();
         Helpers.saveCommit(initialCommit);
+
+        /** Set up staging area */
+        stagingArea = new TreeMap<>();
+        Helpers.saveStaging();
+    }
+
+    /** Add File to staging area */
+    public static void addFile(String filename) throws IOException {
+        File toAdd = join(CWD, filename);
+        if (!toAdd.exists()) {
+            message("File does not exist.");
+            System.exit(0);
+        }
+        stagingArea = Helpers.retrieveStagingArea();
+        String currentBlob = readContentsAsString(toAdd);
+        String uid = sha1(currentBlob);
+
+        String masterCommitBlobID = "todo";
+        boolean noChange = false;
+        if (uid.equals(masterCommitBlobID)) {
+            noChange = true;
+        }
+
+        if (noChange) {
+            if (stagingArea.containsKey(filename)) {
+                stagingArea.remove(filename);
+                Helpers.saveStaging();
+            }
+            else {
+                message("No changes in this file.");
+            }
+            System.exit(0);
+        }
+
+        if (stagingArea.containsKey(filename)) {
+            String stagedBlobID = stagingArea.get(filename);
+            if (uid.equals(stagedBlobID)) {
+                message("Already added the same content of this file.");
+                System.exit(0);
+            }
+        }
+
+        stagingArea.put(filename, uid);
+        Helpers.saveBlob(currentBlob, uid);
+        Helpers.saveStaging();
     }
 }
