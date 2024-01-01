@@ -32,6 +32,7 @@ public class Repository {
     public static final File INDEX_FILE = join(GITLET_DIR, "index");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     public static TreeMap<String, String> stagingArea;
+    public static final String masterRef = "ref: refs/heads/master\n";
 
     /* TODO: fill in the rest of this class. */
     /** Set up files and directories to persist data */
@@ -52,6 +53,8 @@ public class Repository {
         setupPersistence();
         Commit initialCommit = new Commit();
         Helpers.saveCommit(initialCommit);
+        Helpers.saveHead(masterRef);
+        Helpers.saveMaster(sha1(initialCommit.toString()));
 
         /** Set up staging area */
         stagingArea = new TreeMap<>();
