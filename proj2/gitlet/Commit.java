@@ -34,10 +34,11 @@ public class Commit implements Serializable {
     /** The reference of mapping data structure. */
     private String mapping;
 
-    public Commit(String message, String par) {
+    public Commit(String message, String par, String mapping) {
         this.message = message;
         this.timestamp = new Date();
         this.par = par;
+        this.mapping = mapping;
     }
 
     public Commit() {
@@ -57,6 +58,10 @@ public class Commit implements Serializable {
 
     public String getPar() {
         return par;
+    }
+
+    public String getMappingTree() {
+        return mapping;
     }
 
     @Override
