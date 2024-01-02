@@ -17,7 +17,7 @@ public class Helpers {
     public static void saveCommit(Commit obj) throws IOException {
         File saveFile = join(OBJECTS_DIR, sha1(obj.toString()));
         saveFile.createNewFile();
-        writeContents(saveFile, obj.toString());
+        writeObject(saveFile, obj);
     }
 
     public static void saveStaging() {
@@ -41,15 +41,64 @@ public class Helpers {
         writeContents(saveFile, commitId);
     }
 
+    public static void saveCommitMapping(String uid, TreeMap<String, String> mappingTree) throws IOException {
+        File saveFile = join(OBJECTS_DIR, uid);
+        saveFile.createNewFile();
+        writeObject(saveFile, mappingTree);
+    }
+
     /* Helper methods that help load state from file system */
     /**
      * Retrieve current state of the staging area
      */
-    public static TreeMap retrieveStagingArea() {
+    public static TreeMap<String, String> retrieveStagingArea() {
         return readObject(INDEX_FILE, TreeMap.class);
     }
 
-//    public static String retrieveMasterCommit() {
-//
-//    }
+    /**
+     * Retrieve commitObj from commitId
+     */
+    public static Commit retrieveCommitObj(String commitId) {
+        File savedCommitFile = join(OBJECTS_DIR, commitId);
+        return readObject(savedCommitFile, Commit.class);
+    }
+
+    /**
+     * Retrieve mapping tree of a commit
+     */
+    public static TreeMap<String, String> retrieveMappingTree(String commitId) {
+        Commit curCommit = retrieveCommitObj(commitId);
+        String mappingTreeId = curCommit.getMappingTree();
+
+        if (mappingTreeId.isEmpty()) {
+            return new TreeMap<>();
+        }
+        File mappingTreeFile = join(OBJECTS_DIR, mappingTreeId);
+        return readObject(mappingTreeFile, TreeMap.class);
+    }
+
+    /**
+     * Retrieve commitId of head or master pointer
+     */
+    public static String retrieveHeadCommitID() {
+        return readContentsAsString(HEAD_FILE);
+    }
+
+    public static String retrieveMasterCommitID() {
+        return readContentsAsString(join(REFS_DIR, "heads", "master"));
+    }
+
+    /** Retrieve blob id a file in a particular commit */
+    public static String getBlobIdOfFileInACommit(String commitId, String filename) {
+        TreeMap<String, String> mappingTree = retrieveMappingTree(commitId);
+        return mappingTree.get(filename);
+    }
+
+    /* Other Helper methods */
+    public static void assertInitialized() {
+        if (!GITLET_DIR.exists()) {
+            message("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+    }
 }
