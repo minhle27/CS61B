@@ -73,8 +73,8 @@ public class Main {
      */
     public static void validateNumArgs(String cmd, String[] args, int n) {
         if (args.length != n) {
-            throw new RuntimeException(
-                    String.format("Invalid number of arguments for: %s.", cmd));
+            message(String.format("Invalid number of arguments for: %s.", cmd));
+            System.exit(0);
         }
     }
 }
