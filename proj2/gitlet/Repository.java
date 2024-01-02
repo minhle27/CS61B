@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 
 import static gitlet.Utils.*;
@@ -53,8 +54,9 @@ public class Repository {
         setupPersistence();
         Commit initialCommit = new Commit();
         Helpers.saveCommit(initialCommit);
-        Helpers.saveHead(masterRef);
-        Helpers.saveMaster(sha1(initialCommit.toString()));
+        String uid = sha1(initialCommit.toString());
+        Helpers.saveHead(uid);
+        Helpers.saveMaster(uid);
 
         /** Set up staging area */
         stagingArea = new TreeMap<>();
@@ -63,10 +65,7 @@ public class Repository {
 
     /** Add File to staging area */
     public static void addFile(String filename) throws IOException {
-        if (!GITLET_DIR.exists()) {
-            message("Not in an initialized Gitlet directory.");
-            System.exit(0);
-        }
+        Helpers.assertInitialized();
         File toAdd = join(CWD, filename);
         if (!toAdd.exists()) {
             message("File does not exist.");
@@ -76,9 +75,9 @@ public class Repository {
         String currentBlob = readContentsAsString(toAdd);
         String uid = sha1(currentBlob);
 
-        String masterCommitBlobID = "todo";
+        String curBlobID = Helpers.getBlobIdOfFileInACommit(Helpers.retrieveMasterCommitID(), filename);
         boolean noChange = false;
-        if (uid.equals(masterCommitBlobID)) {
+        if (uid.equals(curBlobID)) {
             noChange = true;
         }
 
@@ -104,5 +103,42 @@ public class Repository {
         stagingArea.put(filename, uid);
         Helpers.saveBlob(currentBlob, uid);
         Helpers.saveStaging();
+    }
+
+    public static void commit(String message) throws IOException {
+        // Handle failure cases
+        Helpers.assertInitialized();
+        if (message.isEmpty()) {
+            message("Please enter a commit message.");
+            System.exit(0);
+        }
+        stagingArea = Helpers.retrieveStagingArea();
+        if (stagingArea.isEmpty()) {
+            message("No changes added to the commit.");
+            System.exit(0);
+        }
+
+        // Retrieve mapping tree of current commit
+        String curCommitId = Helpers.retrieveHeadCommitID();
+        TreeMap<String, String> mappingTree = Helpers.retrieveMappingTree(curCommitId);
+
+        // combine cur commit mapping with staging area
+        for(Map.Entry<String, String> entry : stagingArea.entrySet()) {
+            String filename = entry.getKey();
+            String blob = entry.getValue();
+            mappingTree.put(filename, blob);
+        }
+
+        String mappingTreeUid = sha1(mappingTree.toString());
+        Commit newCommit = new Commit(message, curCommitId, mappingTreeUid);
+        Helpers.saveCommit(newCommit);
+        Helpers.saveCommitMapping(mappingTreeUid, mappingTree);
+        stagingArea.clear();
+        Helpers.saveStaging();
+
+        // Advances head and master pointers
+        String commitId = sha1(newCommit.toString());
+        Helpers.saveHead(commitId);
+        Helpers.saveMaster(commitId);
     }
 }
