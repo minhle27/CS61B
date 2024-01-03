@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -58,7 +59,6 @@ public class Repository {
         saveHead(uid);
         saveMaster(uid);
 
-        /** Set up staging area */
         stagingArea = new StagingArea();
         saveStaging();
     }
@@ -110,7 +110,7 @@ public class Repository {
             System.exit(0);
         }
         stagingArea = retrieveStagingArea();
-        if (stagingArea.addition.isEmpty() || stagingArea.removal.isEmpty()) {
+        if (stagingArea.addition.isEmpty() && stagingArea.removal.isEmpty()) {
             message("No changes added to the commit.");
             System.exit(0);
         }
@@ -168,6 +168,13 @@ public class Repository {
             System.exit(0);
         }
         saveStaging();
+    }
+
+    public static void log() {
+        String curId = retrieveHeadCommitID();
+        while(!curId.isEmpty()) {
+            curId = printCommitInfo(curId);
+        }
     }
 
 }

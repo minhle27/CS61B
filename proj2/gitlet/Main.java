@@ -43,6 +43,8 @@ public class Main {
                 Repository.rm(fileToRm);
                 break;
             case "log":
+                validateNumArgs("log", args, 1);
+                Repository.log();
                 break;
             case "global-log":
                 break;

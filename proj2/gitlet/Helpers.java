@@ -113,4 +113,16 @@ public class Helpers {
             System.exit(0);
         }
     }
+
+    /* Other Helper methods */
+    /** Print out info of current commit and return its parent commitId */
+    public static String printCommitInfo(String curId) {
+        Commit cur = retrieveCommitObj(curId);
+        System.out.println("===");
+        System.out.println("commit " + curId);
+        System.out.println("Date: " + cur.getTimestamp());
+        System.out.println(cur.getMessage());
+        System.out.println();
+        return cur.getPar();
+    }
 }
