@@ -70,7 +70,7 @@ public class Commit implements Serializable, Dumpable {
         sb.append("Commit Message: ").append(message).append("\n");
         sb.append("Timestamp: ").append(timestamp).append("\n");
         sb.append("Parent Commit: ").append(par).append("\n");
-        sb.append("Commit: ").append(mapping).append("\n");
+        sb.append("Commit Mapping: ").append(mapping).append("\n");
         return sb.toString();
     }
 
