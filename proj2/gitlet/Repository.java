@@ -143,7 +143,24 @@ public class Repository {
         File toRm = join(CWD, filename);
         Helpers.assertFileExists(toRm);
         stagingArea = Helpers.retrieveStagingArea();
+        CommitMapping headMapping = Helpers.getMappingOfHead();
 
+        boolean isFailure = true;
+        if (stagingArea.addition.containsKey(filename)) {
+            stagingArea.addition.remove(filename);
+            isFailure = false;
+        }
+        if (headMapping.mapping.containsKey(filename)) {
+            stagingArea.removal.put(filename, headMapping.mapping.get(filename));
+            // remove file from cwd
+            restrictedDelete(join(CWD, filename));
+            isFailure = false;
+        }
+        if (isFailure) {
+            message("No reason to remove the file.");
+            System.exit(0);
+        }
+        Helpers.saveStaging();
     }
 
 }

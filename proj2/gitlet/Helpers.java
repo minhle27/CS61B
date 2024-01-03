@@ -94,6 +94,11 @@ public class Helpers {
         return mappingTree.mapping.get(filename);
     }
 
+    /** Retrieve mapping tree of the head commit */
+    public static CommitMapping getMappingOfHead() {
+        return retrieveMappingTree(retrieveHeadCommitID());
+    }
+
     /* Assert Helper methods */
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
