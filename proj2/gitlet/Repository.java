@@ -136,6 +136,7 @@ public class Repository {
         saveCommit(newCommit);
         saveCommitMapping(mappingTreeUid, mappingTree);
         stagingArea.addition.clear();
+        stagingArea.removal.clear();
         saveStaging();
 
         // Advances head and master pointers
