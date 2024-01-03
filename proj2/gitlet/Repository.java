@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static gitlet.Helpers.*;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -52,26 +53,26 @@ public class Repository {
         }
         setupPersistence();
         Commit initialCommit = new Commit();
-        Helpers.saveCommit(initialCommit);
+        saveCommit(initialCommit);
         String uid = sha1(initialCommit.toString());
-        Helpers.saveHead(uid);
-        Helpers.saveMaster(uid);
+        saveHead(uid);
+        saveMaster(uid);
 
         /** Set up staging area */
         stagingArea = new StagingArea();
-        Helpers.saveStaging();
+        saveStaging();
     }
 
     /** Add File to staging area */
     public static void addFile(String filename) throws IOException {
-        Helpers.assertInitialized();
+        assertInitialized();
         File toAdd = join(CWD, filename);
-        Helpers.assertFileExists(toAdd);
-        stagingArea = Helpers.retrieveStagingArea();
+        assertFileExists(toAdd);
+        stagingArea = retrieveStagingArea();
         String currentBlob = readContentsAsString(toAdd);
         String uid = sha1(currentBlob);
 
-        String curBlobID = Helpers.getBlobIdOfFileInACommit(Helpers.retrieveMasterCommitID(), filename);
+        String curBlobID = getBlobIdOfFileInACommit(retrieveMasterCommitID(), filename);
         boolean noChange = false;
         if (uid.equals(curBlobID)) {
             noChange = true;
@@ -80,7 +81,7 @@ public class Repository {
         if (noChange) {
             if (stagingArea.addition.containsKey(filename)) {
                 stagingArea.addition.remove(filename);
-                Helpers.saveStaging();
+                saveStaging();
             }
             else {
                 message("No changes in this file.");
@@ -97,26 +98,26 @@ public class Repository {
         }
 
         stagingArea.addition.put(filename, uid);
-        Helpers.saveBlob(currentBlob, uid);
-        Helpers.saveStaging();
+        saveBlob(currentBlob, uid);
+        saveStaging();
     }
 
     public static void commit(String message) throws IOException {
         // Handle failure cases
-        Helpers.assertInitialized();
+        assertInitialized();
         if (message.isEmpty()) {
             message("Please enter a commit message.");
             System.exit(0);
         }
-        stagingArea = Helpers.retrieveStagingArea();
+        stagingArea = retrieveStagingArea();
         if (stagingArea.addition.isEmpty()) {
             message("No changes added to the commit.");
             System.exit(0);
         }
 
         // Retrieve mapping tree of current commit
-        String curCommitId = Helpers.retrieveHeadCommitID();
-        CommitMapping mappingTree = Helpers.retrieveMappingTree(curCommitId);
+        String curCommitId = retrieveHeadCommitID();
+        CommitMapping mappingTree = retrieveMappingTree(curCommitId);
 
         // combine cur commit mapping with staging area
         for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
@@ -127,23 +128,23 @@ public class Repository {
 
         String mappingTreeUid = sha1(mappingTree.toString());
         Commit newCommit = new Commit(message, curCommitId, mappingTreeUid);
-        Helpers.saveCommit(newCommit);
-        Helpers.saveCommitMapping(mappingTreeUid, mappingTree);
+        saveCommit(newCommit);
+        saveCommitMapping(mappingTreeUid, mappingTree);
         stagingArea.addition.clear();
-        Helpers.saveStaging();
+        saveStaging();
 
         // Advances head and master pointers
         String commitId = sha1(newCommit.toString());
-        Helpers.saveHead(commitId);
-        Helpers.saveMaster(commitId);
+        saveHead(commitId);
+        saveMaster(commitId);
     }
 
     public static void rm(String filename) {
-        Helpers.assertInitialized();
+        assertInitialized();
         File toRm = join(CWD, filename);
-        Helpers.assertFileExists(toRm);
-        stagingArea = Helpers.retrieveStagingArea();
-        CommitMapping headMapping = Helpers.getMappingOfHead();
+        assertFileExists(toRm);
+        stagingArea = retrieveStagingArea();
+        CommitMapping headMapping = getMappingOfHead();
 
         boolean isFailure = true;
         if (stagingArea.addition.containsKey(filename)) {
@@ -160,7 +161,7 @@ public class Repository {
             message("No reason to remove the file.");
             System.exit(0);
         }
-        Helpers.saveStaging();
+        saveStaging();
     }
 
 }
