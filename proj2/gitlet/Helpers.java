@@ -51,8 +51,8 @@ public class Helpers {
     /**
      * Retrieve current state of the staging area
      */
-    public static TreeMap<String, String> retrieveStagingArea() {
-        return readObject(INDEX_FILE, TreeMap.class);
+    public static StagingArea retrieveStagingArea() {
+        return readObject(INDEX_FILE, StagingArea.class);
     }
 
     /**
@@ -98,6 +98,13 @@ public class Helpers {
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
             message("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+    }
+
+    public static void assertFileExists(File target) {
+        if (!target.exists()) {
+            message("File does not exist.");
             System.exit(0);
         }
     }

@@ -38,6 +38,9 @@ public class Main {
                 Repository.commit(message);
                 break;
             case "rm":
+                validateNumArgs("rm", args, 2);
+                String fileToRm = args[1];
+                Repository.rm(fileToRm);
                 break;
             case "log":
                 break;

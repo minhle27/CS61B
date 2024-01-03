@@ -32,7 +32,7 @@ public class Repository {
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     public static final File INDEX_FILE = join(GITLET_DIR, "index");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
-    public static TreeMap<String, String> stagingArea;
+    public static StagingArea stagingArea;
     public static final String masterRef = "ref: refs/heads/master\n";
 
     /* TODO: fill in the rest of this class. */
@@ -59,7 +59,7 @@ public class Repository {
         Helpers.saveMaster(uid);
 
         /** Set up staging area */
-        stagingArea = new TreeMap<>();
+        stagingArea = new StagingArea();
         Helpers.saveStaging();
     }
 
@@ -67,10 +67,7 @@ public class Repository {
     public static void addFile(String filename) throws IOException {
         Helpers.assertInitialized();
         File toAdd = join(CWD, filename);
-        if (!toAdd.exists()) {
-            message("File does not exist.");
-            System.exit(0);
-        }
+        Helpers.assertFileExists(toAdd);
         stagingArea = Helpers.retrieveStagingArea();
         String currentBlob = readContentsAsString(toAdd);
         String uid = sha1(currentBlob);
@@ -82,8 +79,8 @@ public class Repository {
         }
 
         if (noChange) {
-            if (stagingArea.containsKey(filename)) {
-                stagingArea.remove(filename);
+            if (stagingArea.addition.containsKey(filename)) {
+                stagingArea.addition.remove(filename);
                 Helpers.saveStaging();
             }
             else {
@@ -92,15 +89,15 @@ public class Repository {
             System.exit(0);
         }
 
-        if (stagingArea.containsKey(filename)) {
-            String stagedBlobID = stagingArea.get(filename);
+        if (stagingArea.addition.containsKey(filename)) {
+            String stagedBlobID = stagingArea.addition.get(filename);
             if (uid.equals(stagedBlobID)) {
                 message("Already added the same content of this file.");
                 System.exit(0);
             }
         }
 
-        stagingArea.put(filename, uid);
+        stagingArea.addition.put(filename, uid);
         Helpers.saveBlob(currentBlob, uid);
         Helpers.saveStaging();
     }
@@ -113,7 +110,7 @@ public class Repository {
             System.exit(0);
         }
         stagingArea = Helpers.retrieveStagingArea();
-        if (stagingArea.isEmpty()) {
+        if (stagingArea.addition.isEmpty()) {
             message("No changes added to the commit.");
             System.exit(0);
         }
@@ -123,7 +120,7 @@ public class Repository {
         TreeMap<String, String> mappingTree = Helpers.retrieveMappingTree(curCommitId);
 
         // combine cur commit mapping with staging area
-        for(Map.Entry<String, String> entry : stagingArea.entrySet()) {
+        for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
             String filename = entry.getKey();
             String blob = entry.getValue();
             mappingTree.put(filename, blob);
@@ -133,7 +130,7 @@ public class Repository {
         Commit newCommit = new Commit(message, curCommitId, mappingTreeUid);
         Helpers.saveCommit(newCommit);
         Helpers.saveCommitMapping(mappingTreeUid, mappingTree);
-        stagingArea.clear();
+        stagingArea.addition.clear();
         Helpers.saveStaging();
 
         // Advances head and master pointers
@@ -141,4 +138,13 @@ public class Repository {
         Helpers.saveHead(commitId);
         Helpers.saveMaster(commitId);
     }
+
+    public static void rm(String filename) {
+        Helpers.assertInitialized();
+        File toRm = join(CWD, filename);
+        Helpers.assertFileExists(toRm);
+        stagingArea = Helpers.retrieveStagingArea();
+
+    }
+
 }
