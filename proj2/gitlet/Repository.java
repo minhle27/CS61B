@@ -110,7 +110,7 @@ public class Repository {
             System.exit(0);
         }
         stagingArea = retrieveStagingArea();
-        if (stagingArea.addition.isEmpty()) {
+        if (stagingArea.addition.isEmpty() || stagingArea.removal.isEmpty()) {
             message("No changes added to the commit.");
             System.exit(0);
         }
@@ -124,6 +124,11 @@ public class Repository {
             String filename = entry.getKey();
             String blob = entry.getValue();
             mappingTree.mapping.put(filename, blob);
+        }
+
+        for(Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
+            String filename = entry.getKey();
+            mappingTree.mapping.remove(filename);
         }
 
         String mappingTreeUid = sha1(mappingTree.toString());
