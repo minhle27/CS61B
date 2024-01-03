@@ -12,7 +12,7 @@ import java.util.Date; // TODO: You'll likely use this in this class
  *
  *  @author Minh Le
  */
-public class Commit implements Serializable {
+public class Commit implements Serializable, Dumpable {
     /**
      * TODO: add instance variables here.
      *
@@ -72,5 +72,10 @@ public class Commit implements Serializable {
         sb.append("Parent Commit: ").append(par).append("\n");
         sb.append("Commit: ").append(mapping).append("\n");
         return sb.toString();
+    }
+
+    @Override
+    public void dump() {
+        System.out.println(this);
     }
 }

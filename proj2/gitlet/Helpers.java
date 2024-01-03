@@ -41,7 +41,7 @@ public class Helpers {
         writeContents(saveFile, commitId);
     }
 
-    public static void saveCommitMapping(String uid, TreeMap<String, String> mappingTree) throws IOException {
+    public static void saveCommitMapping(String uid, CommitMapping mappingTree) throws IOException {
         File saveFile = join(OBJECTS_DIR, uid);
         saveFile.createNewFile();
         writeObject(saveFile, mappingTree);
@@ -66,15 +66,15 @@ public class Helpers {
     /**
      * Retrieve mapping tree of a commit
      */
-    public static TreeMap<String, String> retrieveMappingTree(String commitId) {
+    public static CommitMapping retrieveMappingTree(String commitId) {
         Commit curCommit = retrieveCommitObj(commitId);
         String mappingTreeId = curCommit.getMappingTree();
 
         if (mappingTreeId.isEmpty()) {
-            return new TreeMap<>();
+            return new CommitMapping();
         }
         File mappingTreeFile = join(OBJECTS_DIR, mappingTreeId);
-        return readObject(mappingTreeFile, TreeMap.class);
+        return readObject(mappingTreeFile, CommitMapping.class);
     }
 
     /**
@@ -90,11 +90,11 @@ public class Helpers {
 
     /** Retrieve blob id a file in a particular commit */
     public static String getBlobIdOfFileInACommit(String commitId, String filename) {
-        TreeMap<String, String> mappingTree = retrieveMappingTree(commitId);
-        return mappingTree.get(filename);
+        CommitMapping mappingTree = retrieveMappingTree(commitId);
+        return mappingTree.mapping.get(filename);
     }
 
-    /* Other Helper methods */
+    /* Assert Helper methods */
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
             message("Not in an initialized Gitlet directory.");

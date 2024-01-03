@@ -35,7 +35,6 @@ public class Repository {
     public static StagingArea stagingArea;
     public static final String masterRef = "ref: refs/heads/master\n";
 
-    /* TODO: fill in the rest of this class. */
     /** Set up files and directories to persist data */
     public static void setupPersistence() throws IOException {
         GITLET_DIR.mkdir();
@@ -117,13 +116,13 @@ public class Repository {
 
         // Retrieve mapping tree of current commit
         String curCommitId = Helpers.retrieveHeadCommitID();
-        TreeMap<String, String> mappingTree = Helpers.retrieveMappingTree(curCommitId);
+        CommitMapping mappingTree = Helpers.retrieveMappingTree(curCommitId);
 
         // combine cur commit mapping with staging area
         for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
             String filename = entry.getKey();
             String blob = entry.getValue();
-            mappingTree.put(filename, blob);
+            mappingTree.mapping.put(filename, blob);
         }
 
         String mappingTreeUid = sha1(mappingTree.toString());
