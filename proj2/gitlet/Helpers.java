@@ -15,7 +15,8 @@ import static gitlet.Utils.*;
 public class Helpers {
     /* Helper methods that help save things to file system */
     public static void saveCommit(Commit obj) throws IOException {
-        File saveFile = join(OBJECTS_DIR, sha1(obj.toString()));
+        File saveFile = join(OBJECTS_DIR, "commit", sha1(obj.toString()));
+        saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         writeObject(saveFile, obj);
     }
@@ -59,7 +60,7 @@ public class Helpers {
      * Retrieve commitObj from commitId
      */
     public static Commit retrieveCommitObj(String commitId) {
-        File savedCommitFile = join(OBJECTS_DIR, commitId);
+        File savedCommitFile = join(OBJECTS_DIR, "commit", commitId);
         return readObject(savedCommitFile, Commit.class);
     }
 

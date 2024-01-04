@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -175,6 +176,13 @@ public class Repository {
     }
 
     public static void globalLog() {
-
+        List<String> allCommits = plainFilenamesIn(join(OBJECTS_DIR, "commit"));
+        if (allCommits == null) {
+            message("Something went wrong.");
+            System.exit(0);
+        }
+        for (String commitId : allCommits) {
+            printCommitInfo(commitId);
+        }
     }
 }
