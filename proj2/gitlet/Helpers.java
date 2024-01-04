@@ -2,7 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.TreeMap;
+
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -14,8 +14,15 @@ import static gitlet.Utils.*;
 
 public class Helpers {
     /* Helper methods that help save things to file system */
-    public static void saveCommit(Commit obj) throws IOException {
-        File saveFile = join(OBJECTS_DIR, "commit", sha1(obj.toString()));
+    public static String getObjectDir(String ObjId) {
+        return ObjId.substring(0, 2);
+    }
+
+    public static String getObjectFilename(String ObjId) {
+        return ObjId.substring(2);
+    }
+    public static void saveCommit(Commit obj, String commitId) throws IOException {
+        File saveFile = join(OBJECTS_DIR, getObjectDir(commitId), getObjectFilename(commitId));
         saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         writeObject(saveFile, obj);
@@ -26,7 +33,8 @@ public class Helpers {
     }
 
     public static void saveBlob(String fileContent, String uid) throws IOException {
-        File saveFile = join(OBJECTS_DIR, uid);
+        File saveFile = join(OBJECTS_DIR, getObjectDir(uid), getObjectFilename(uid));
+        saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         writeContents(saveFile, fileContent);
     }
@@ -43,9 +51,14 @@ public class Helpers {
     }
 
     public static void saveCommitMapping(String uid, CommitMapping mappingTree) throws IOException {
-        File saveFile = join(OBJECTS_DIR, uid);
+        File saveFile = join(OBJECTS_DIR, getObjectDir(uid), getObjectFilename(uid));
+        saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         writeObject(saveFile, mappingTree);
+    }
+
+    public static void saveCommitsList() {
+        writeObject(COMMITS_LIST_FILE, commitHistory);
     }
 
     /* Helper methods that help load state from file system */
@@ -60,7 +73,7 @@ public class Helpers {
      * Retrieve commitObj from commitId
      */
     public static Commit retrieveCommitObj(String commitId) {
-        File savedCommitFile = join(OBJECTS_DIR, "commit", commitId);
+        File savedCommitFile = join(OBJECTS_DIR, getObjectDir(commitId), getObjectFilename(commitId));
         return readObject(savedCommitFile, Commit.class);
     }
 
@@ -74,7 +87,7 @@ public class Helpers {
         if (mappingTreeId.isEmpty()) {
             return new CommitMapping();
         }
-        File mappingTreeFile = join(OBJECTS_DIR, mappingTreeId);
+        File mappingTreeFile = join(OBJECTS_DIR, getObjectDir(mappingTreeId), getObjectFilename(mappingTreeId));
         return readObject(mappingTreeFile, CommitMapping.class);
     }
 
@@ -100,6 +113,10 @@ public class Helpers {
         return retrieveMappingTree(retrieveHeadCommitID());
     }
 
+    /** Retrieve a list of id of all commits ever made */
+    public static CommitHistory getAllCommits() {
+        return readObject(COMMITS_LIST_FILE, CommitHistory.class);
+    }
     /* Assert Helper methods */
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {

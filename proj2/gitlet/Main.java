@@ -63,6 +63,9 @@ public class Main {
                 Repository.find(find_message);
                 break;
             case "status":
+                validateNumArgs("status", args, 1);
+                assertInitialized();
+                Repository.status();
                 break;
             case "checkout":
                 break;

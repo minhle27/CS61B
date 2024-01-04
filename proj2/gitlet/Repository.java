@@ -2,10 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import static gitlet.Helpers.*;
 import static gitlet.Utils.*;
@@ -35,7 +32,9 @@ public class Repository {
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     public static final File INDEX_FILE = join(GITLET_DIR, "index");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
+    public static final File COMMITS_LIST_FILE = join(OBJECTS_DIR, "commitList");
     public static StagingArea stagingArea;
+    public static CommitHistory commitHistory;
     public static final String masterRef = "ref: refs/heads/master\n";
 
     /** Set up files and directories to persist data */
@@ -45,6 +44,7 @@ public class Repository {
         OBJECTS_DIR.mkdirs();
         INDEX_FILE.createNewFile();
         REFS_DIR.mkdirs();
+        COMMITS_LIST_FILE.createNewFile();
     }
 
     /** Init Gitlet */
@@ -55,13 +55,16 @@ public class Repository {
         }
         setupPersistence();
         Commit initialCommit = new Commit();
-        saveCommit(initialCommit);
         String uid = sha1(initialCommit.toString());
+        saveCommit(initialCommit, uid);
         saveHead(uid);
         saveMaster(uid);
 
         stagingArea = new StagingArea();
+        commitHistory = new CommitHistory();
+        commitHistory.curList.add(uid);
         saveStaging();
+        saveCommitsList();
     }
 
     /** Add File to staging area */
@@ -73,10 +76,7 @@ public class Repository {
         String uid = sha1(currentBlob);
 
         String curBlobID = getBlobIdOfFileInACommit(retrieveMasterCommitID(), filename);
-        boolean noChange = false;
-        if (uid.equals(curBlobID)) {
-            noChange = true;
-        }
+        boolean noChange = uid.equals(curBlobID);
 
         if (noChange) {
             if (stagingArea.addition.containsKey(filename)) {
@@ -108,7 +108,11 @@ public class Repository {
             message("Please enter a commit message.");
             System.exit(0);
         }
+
+        // retrieve persistence data
         stagingArea = retrieveStagingArea();
+        commitHistory = getAllCommits();
+
         if (stagingArea.addition.isEmpty() && stagingArea.removal.isEmpty()) {
             message("No changes added to the commit.");
             System.exit(0);
@@ -132,16 +136,18 @@ public class Repository {
 
         String mappingTreeUid = sha1(mappingTree.toString());
         Commit newCommit = new Commit(message, curCommitId, mappingTreeUid);
-        saveCommit(newCommit);
+        String newCommitId = sha1(newCommit.toString());
+        saveCommit(newCommit, newCommitId);
         saveCommitMapping(mappingTreeUid, mappingTree);
         stagingArea.addition.clear();
         stagingArea.removal.clear();
+        commitHistory.curList.add(newCommitId);
         saveStaging();
+        saveCommitsList();
 
         // Advances head and master pointers
-        String commitId = sha1(newCommit.toString());
-        saveHead(commitId);
-        saveMaster(commitId);
+        saveHead(newCommitId);
+        saveMaster(newCommitId);
     }
 
     public static void rm(String filename) {
@@ -176,25 +182,25 @@ public class Repository {
     }
 
     public static void globalLog() {
-        List<String> allCommits = plainFilenamesIn(join(OBJECTS_DIR, "commit"));
-        if (allCommits == null) {
-            message("Something went wrong.");
+        CommitHistory allCommits = getAllCommits();
+        if (allCommits.curList.isEmpty()) {
+            message("No History.");
             System.exit(0);
         }
-        for (String commitId : allCommits) {
+        for (String commitId : allCommits.curList) {
             printCommitInfo(commitId);
         }
     }
 
     public static void find(String message) {
-        List<String> allCommits = plainFilenamesIn(join(OBJECTS_DIR, "commit"));
-        if (allCommits == null) {
-            message("Something went wrong.");
+        CommitHistory allCommits = getAllCommits();
+        if (allCommits.curList.isEmpty()) {
+            message("No commit history.");
             System.exit(0);
         }
         System.out.println("Commit with the message: " + message);
         boolean haveCommits = false;
-        for (String commitId : allCommits) {
+        for (String commitId : allCommits.curList) {
             Commit cur = retrieveCommitObj(commitId);
             if (cur.getMessage().equals(message)) {
                 System.out.println(commitId);
@@ -204,5 +210,9 @@ public class Repository {
         if (!haveCommits) {
             message("Found no commit with that message.");
         }
+    }
+
+    public static void status() {
+
     }
 }
