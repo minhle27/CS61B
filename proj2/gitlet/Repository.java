@@ -65,7 +65,6 @@ public class Repository {
 
     /** Add File to staging area */
     public static void addFile(String filename) throws IOException {
-        assertInitialized();
         File toAdd = join(CWD, filename);
         assertFileExists(toAdd);
         stagingArea = retrieveStagingArea();
@@ -104,7 +103,6 @@ public class Repository {
 
     public static void commit(String message) throws IOException {
         // Handle failure cases
-        assertInitialized();
         if (message.isEmpty()) {
             message("Please enter a commit message.");
             System.exit(0);
@@ -146,7 +144,6 @@ public class Repository {
     }
 
     public static void rm(String filename) {
-        assertInitialized();
         File toRm = join(CWD, filename);
         assertFileExists(toRm);
         stagingArea = retrieveStagingArea();
@@ -177,4 +174,7 @@ public class Repository {
         }
     }
 
+    public static void globalLog() {
+
+    }
 }

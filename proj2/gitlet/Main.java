@@ -3,6 +3,7 @@ package gitlet;
 import java.io.IOException;
 
 import static gitlet.Utils.message;
+import static gitlet.Helpers.assertInitialized;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author Minh Le
@@ -28,25 +29,32 @@ public class Main {
             case "add":
                 // TODO: handle the `add [filename]` command
                 validateNumArgs("init", args, 2);
+                assertInitialized();
                 String filename = args[1];
                 Repository.addFile(filename);
                 break;
             // TODO: FILL THE REST IN
             case "commit":
                 validateNumArgs("commit", args, 2);
+                assertInitialized();
                 String message = args[1];
                 Repository.commit(message);
                 break;
             case "rm":
                 validateNumArgs("rm", args, 2);
+                assertInitialized();
                 String fileToRm = args[1];
                 Repository.rm(fileToRm);
                 break;
             case "log":
                 validateNumArgs("log", args, 1);
+                assertInitialized();
                 Repository.log();
                 break;
             case "global-log":
+                validateNumArgs("global-log", args, 1);
+                assertInitialized();
+                Repository.globalLog();
                 break;
             case "find":
                 break;
