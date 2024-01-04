@@ -57,6 +57,10 @@ public class Main {
                 Repository.globalLog();
                 break;
             case "find":
+                validateNumArgs("find", args, 2);
+                assertInitialized();
+                String find_message = args[1];
+                Repository.find(find_message);
                 break;
             case "status":
                 break;

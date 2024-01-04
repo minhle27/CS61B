@@ -185,4 +185,24 @@ public class Repository {
             printCommitInfo(commitId);
         }
     }
+
+    public static void find(String message) {
+        List<String> allCommits = plainFilenamesIn(join(OBJECTS_DIR, "commit"));
+        if (allCommits == null) {
+            message("Something went wrong.");
+            System.exit(0);
+        }
+        System.out.println("Commit with the message: " + message);
+        boolean haveCommits = false;
+        for (String commitId : allCommits) {
+            Commit cur = retrieveCommitObj(commitId);
+            if (cur.getMessage().equals(message)) {
+                System.out.println(commitId);
+                haveCommits = true;
+            }
+        }
+        if (!haveCommits) {
+            message("Found no commit with that message.");
+        }
+    }
 }
