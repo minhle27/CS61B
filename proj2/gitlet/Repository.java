@@ -213,6 +213,23 @@ public class Repository {
     }
 
     public static void status() {
+        // Retrieve persistence data
+        stagingArea = retrieveStagingArea();
+        System.out.println("=== Branches ===");
+        System.out.println();
 
+        System.out.println("=== Staged Files ===");
+        for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
+            String filename = entry.getKey();
+            System.out.println(filename);
+        }
+        System.out.println();
+
+        System.out.println("=== Removed Files ===");
+        for(Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
+            String filename = entry.getKey();
+            System.out.println(filename);
+        }
+        System.out.println();
     }
 }
