@@ -13,7 +13,7 @@ public class Main {
     /** Usage: java gitlet.Main ARGS, where ARGS contains
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // TODO: what if args is empty?
         if (args.length == 0) {
             message("Please enter a command.");
@@ -24,21 +24,33 @@ public class Main {
             case "init":
                 // TODO: handle the `init` command
                 validateNumArgs("init", args, 1);
-                Repository.initGitLet();
+                try {
+                    Repository.initGitLet();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "add":
                 // TODO: handle the `add [filename]` command
                 validateNumArgs("init", args, 2);
                 assertInitialized();
                 String filename = args[1];
-                Repository.addFile(filename);
+                try {
+                    Repository.addFile(filename);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             // TODO: FILL THE REST IN
             case "commit":
                 validateNumArgs("commit", args, 2);
                 assertInitialized();
                 String message = args[1];
-                Repository.commit(message);
+                try {
+                    Repository.commit(message);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "rm":
                 validateNumArgs("rm", args, 2);
@@ -73,7 +85,11 @@ public class Main {
                     message("Invalid number of arguments for checkout.");
                     System.exit(0);
                 }
-                Repository.checkout(args);
+                try {
+                    Repository.checkout(args);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "branch":
                 break;
