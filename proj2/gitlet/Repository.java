@@ -232,4 +232,39 @@ public class Repository {
         }
         System.out.println();
     }
+
+    public static void checkout(String[] args) throws IOException {
+        if (args.length == 3) {
+            if (!args[1].equals("--")) {
+                message("Wrong format of checkout command.");
+                System.exit(0);
+            }
+            String filename = args[2];
+            String headCommitID = retrieveHeadCommitID();
+            changeFileVer(filename, headCommitID);
+        }
+        else if (args.length == 4) {
+            if (!args[2].equals("--")) {
+                message("Wrong format of checkout command.");
+                System.exit(0);
+            }
+            String filename = args[3];
+            String abbreviatedId = args[1];
+            if (abbreviatedId.length() <= 6) {
+                message("Please provide a longer commitId");
+                System.exit(0);
+            }
+            String commitId = getFullId(abbreviatedId);
+            if (commitId.isEmpty()) {
+                message("No commit with that id exists.");
+                System.exit(0);
+            }
+            changeFileVer(filename, commitId);
+        }
+        else if (args.length == 2) {
+            String branchName = args[1];
+            String headId = retrieveHeadCommitID();
+
+        }
+    }
 }

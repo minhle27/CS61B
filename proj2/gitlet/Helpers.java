@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 
 import static gitlet.Repository.*;
@@ -117,6 +118,11 @@ public class Helpers {
     public static CommitHistory getAllCommits() {
         return readObject(COMMITS_LIST_FILE, CommitHistory.class);
     }
+
+    public static String getBlobContent(String blobId) {
+        File saveFile = join(OBJECTS_DIR, getObjectDir(blobId), getObjectFilename(blobId));
+        return readContentsAsString(saveFile);
+    }
     /* Assert Helper methods */
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
@@ -142,5 +148,34 @@ public class Helpers {
         System.out.println(cur.getMessage());
         System.out.println();
         return cur.getPar();
+    }
+
+    /** Modify the content of a file in CWD to its version in CommitId
+     * If the file does not exist, create a new file
+     * */
+    public static void changeFileVer(String filename, String commitId) throws IOException {
+        CommitMapping cur = retrieveMappingTree(commitId);
+        if (!cur.mapping.containsKey(filename)) {
+            message("File does not exist in that commit.");
+            System.exit(0);
+        }
+        String blobId = cur.mapping.get(filename);
+        File curFile = join(CWD, filename);
+        if (!curFile.exists()) {
+            curFile.createNewFile();
+        }
+        writeContents(curFile, getBlobContent(blobId));
+    }
+
+    /** Return the full object id from the abbreviated version */
+    public static String getFullId(String objId) {
+        List<String> fileList = plainFilenamesIn(join(OBJECTS_DIR, getObjectDir(objId)));
+        assert fileList != null;
+        for (String each : fileList) {
+            if (each.startsWith(objId.substring(2))) {
+                return each;
+            }
+        }
+        return "";
     }
 }

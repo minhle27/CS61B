@@ -68,6 +68,12 @@ public class Main {
                 Repository.status();
                 break;
             case "checkout":
+                assertInitialized();
+                if (args.length <= 1 || args.length >= 5) {
+                    message("Invalid number of arguments for checkout.");
+                    System.exit(0);
+                }
+                Repository.checkout(args);
                 break;
             case "branch":
                 break;
