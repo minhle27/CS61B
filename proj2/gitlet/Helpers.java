@@ -175,11 +175,12 @@ public class Helpers {
 
     /** Return the full object id from the abbreviated version */
     public static String getFullId(String objId) {
-        List<String> fileList = plainFilenamesIn(join(OBJECTS_DIR, getObjectDir(objId)));
+        String objSubDir = getObjectDir(objId);
+        List<String> fileList = plainFilenamesIn(join(OBJECTS_DIR, objSubDir));
         assert fileList != null;
         for (String each : fileList) {
             if (each.startsWith(objId.substring(2))) {
-                return each;
+                return objSubDir + each;
             }
         }
         return "";
