@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Formatter;
 import java.util.List;
 
 
@@ -144,7 +145,12 @@ public class Helpers {
         Commit cur = retrieveCommitObj(curId);
         System.out.println("===");
         System.out.println("commit " + curId);
-        System.out.println("Date: " + cur.getTimestamp());
+
+        StringBuilder formattedDate = new StringBuilder();
+        Formatter formatter = new Formatter(formattedDate);
+        formatter.format("%1$ta %1$tb %1$td %1$tT %1$tY %1$tz", cur.getTimestamp());
+        System.out.println("Date: " + formattedDate);
+
         System.out.println(cur.getMessage());
         System.out.println();
         return cur.getPar();
