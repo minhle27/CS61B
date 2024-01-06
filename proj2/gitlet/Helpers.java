@@ -16,6 +16,7 @@ import static gitlet.Utils.*;
 
 public class Helpers {
     /* Helper methods that help save things to file system */
+    /** Given a SHA1 hash, isolates the first two char for dir name and the remaining for file name. */
     public static String getObjectDir(String ObjId) {
         return ObjId.substring(0, 2);
     }
@@ -23,6 +24,8 @@ public class Helpers {
     public static String getObjectFilename(String ObjId) {
         return ObjId.substring(2);
     }
+
+    /** Save a Commit obj in OBJECTS_DIR. */
     public static void saveCommit(Commit obj, String commitId) throws IOException {
         File saveFile = join(OBJECTS_DIR, getObjectDir(commitId), getObjectFilename(commitId));
         saveFile.getParentFile().mkdirs();
@@ -30,10 +33,12 @@ public class Helpers {
         writeObject(saveFile, obj);
     }
 
+    /** Save the staging area in INDEX. */
     public static void saveStaging() {
         writeObject(INDEX_FILE, stagingArea);
     }
 
+    /** Save Blob. */
     public static void saveBlob(String fileContent, String uid) throws IOException {
         File saveFile = join(OBJECTS_DIR, getObjectDir(uid), getObjectFilename(uid));
         saveFile.getParentFile().mkdirs();
@@ -94,14 +99,17 @@ public class Helpers {
     }
 
     /**
-     * Retrieve commitId of head or master pointer
+     * Retrieve commitId of HEAD of the current branch
      */
     public static String retrieveHeadCommitID() {
         return readContentsAsString(HEAD_FILE);
     }
 
-    public static String retrieveMasterCommitID() {
-        return readContentsAsString(join(REFS_DIR, "heads", "master"));
+    /**
+     * Retrieve commitId of HEAD of a given branch
+     */
+    public static String getHeadOfBranch(String branchName) {
+        return readContentsAsString(join(REFS_DIR, "heads", branchName));
     }
 
     /** Retrieve blob id a file in a particular commit */
@@ -191,5 +199,12 @@ public class Helpers {
             }
         }
         return "";
+    }
+
+    /** Check if a branch name exist */
+    public static boolean isBranchExist(String branchName) {
+        List<String> allBranchNames = plainFilenamesIn(join(REFS_DIR, "heads"));
+        assert allBranchNames != null;
+        return allBranchNames.contains(branchName);
     }
 }

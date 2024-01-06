@@ -76,7 +76,7 @@ public class Repository {
         String currentBlob = readContentsAsString(toAdd);
         String uid = sha1(currentBlob);
 
-        String curBlobID = getBlobIdOfFileInACommit(retrieveMasterCommitID(), filename);
+        String curBlobID = getBlobIdOfFileInACommit(retrieveHeadCommitID(), filename);
         boolean noChange = uid.equals(curBlobID);
 
         if (noChange) {
@@ -258,15 +258,12 @@ public class Repository {
         }
         else if (args.length == 2) {
             String branchName = args[1];
-            String headId = retrieveHeadCommitID();
 
         }
     }
 
     public static void branch(String branchName) throws IOException {
-        List<String> allBranchNames = plainFilenamesIn(join(REFS_DIR, "heads"));
-        assert allBranchNames != null;
-        if (allBranchNames.contains(branchName)){
+        if (isBranchExist(branchName)) {
             message("A branch with that name already exists.");
             System.exit(0);
         }
