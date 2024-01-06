@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static gitlet.Helpers.*;
@@ -58,7 +59,7 @@ public class Repository {
         String uid = sha1(initialCommit.toString());
         saveCommit(initialCommit, uid);
         saveHead(uid);
-        saveMaster(uid);
+        saveBranch(uid, "master");
 
         stagingArea = new StagingArea();
         commitHistory = new CommitHistory();
@@ -103,12 +104,6 @@ public class Repository {
     }
 
     public static void commit(String message) throws IOException {
-        // Handle failure cases
-        if (message.isEmpty()) {
-            message("Please enter a commit message.");
-            System.exit(0);
-        }
-
         // retrieve persistence data
         stagingArea = retrieveStagingArea();
         commitHistory = getAllCommits();
@@ -147,7 +142,7 @@ public class Repository {
 
         // Advances head and master pointers
         saveHead(newCommitId);
-        saveMaster(newCommitId);
+        saveBranch(newCommitId, "master");
     }
 
     public static void rm(String filename) {
@@ -266,5 +261,15 @@ public class Repository {
             String headId = retrieveHeadCommitID();
 
         }
+    }
+
+    public static void branch(String branchName) throws IOException {
+        List<String> allBranchNames = plainFilenamesIn(join(REFS_DIR, "heads"));
+        assert allBranchNames != null;
+        if (allBranchNames.contains(branchName)){
+            message("A branch with that name already exists.");
+            System.exit(0);
+        }
+        saveBranch(retrieveHeadCommitID(), branchName);
     }
 }

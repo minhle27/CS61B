@@ -45,8 +45,8 @@ public class Helpers {
         writeContents(HEAD_FILE, commitId);
     }
 
-    public static void saveMaster(String commitId) throws IOException {
-        File saveFile = join(REFS_DIR, "heads", "master");
+    public static void saveBranch(String commitId, String branchName) throws IOException {
+        File saveFile = join(REFS_DIR, "heads", branchName);
         saveFile.getParentFile().mkdirs();
         saveFile.createNewFile();
         writeContents(saveFile, commitId);
@@ -128,6 +128,13 @@ public class Helpers {
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
             message("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+    }
+
+    public static void assertStringNotEmpty(String message) {
+        if (message.isEmpty()) {
+            message("Please enter provide a non-empty string.");
             System.exit(0);
         }
     }

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.IOException;
 
+import static gitlet.Helpers.assertStringNotEmpty;
 import static gitlet.Utils.message;
 import static gitlet.Helpers.assertInitialized;
 
@@ -46,6 +47,7 @@ public class Main {
                 validateNumArgs("commit", args, 2);
                 assertInitialized();
                 String message = args[1];
+                assertStringNotEmpty(message);
                 try {
                     Repository.commit(message);
                 } catch (IOException e) {
@@ -92,6 +94,15 @@ public class Main {
                 }
                 break;
             case "branch":
+                validateNumArgs("status", args, 2);
+                assertInitialized();
+                String branchName = args[1];
+                assertStringNotEmpty(branchName);
+                try {
+                    Repository.branch(branchName);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "rm-branch":
                 break;
