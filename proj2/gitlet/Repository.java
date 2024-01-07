@@ -292,8 +292,10 @@ public class Repository {
                     writeContents(join(CWD, filename), content);
                 }
             }
+            stagingArea = retrieveStagingArea();
             stagingArea.addition.clear();
             stagingArea.removal.clear();
+            saveStaging();
             saveHead(branchName);
         }
     }
@@ -304,5 +306,17 @@ public class Repository {
             System.exit(0);
         }
         saveBranch(retrieveHeadCommitID(), branchName);
+    }
+
+    public static void rmBranch(String branchName) {
+        if (!isBranchExist(branchName)) {
+            message("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (getCurBranch().equals(branchName)) {
+            message("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        join(REFS_DIR, "heads", branchName).delete();
     }
 }

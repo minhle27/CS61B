@@ -105,6 +105,10 @@ public class Main {
                 }
                 break;
             case "rm-branch":
+                validateNumArgs("rm-branch", args, 2);
+                assertInitialized();
+                assertStringNotEmpty(args[1]);
+                Repository.rmBranch(args[1]);
                 break;
             case "reset":
                 break;
