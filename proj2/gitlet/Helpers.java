@@ -220,8 +220,11 @@ public class Helpers {
         List<String> cwdFiles = plainFilenamesIn(CWD);
         List<String> res = new ArrayList<>();
         assert cwdFiles != null;
+        StagingArea cur = retrieveStagingArea();
         for (String filename : cwdFiles) {
-            if (!commitMapping.mapping.containsKey(filename)) {
+            if (!commitMapping.mapping.containsKey(filename) ||
+                cur.removal.containsKey(filename)
+            ) {
                 res.add(filename);
             }
         }

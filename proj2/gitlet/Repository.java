@@ -292,6 +292,8 @@ public class Repository {
                     writeContents(join(CWD, filename), content);
                 }
             }
+            stagingArea.addition.clear();
+            stagingArea.removal.clear();
             saveHead(branchName);
         }
     }
