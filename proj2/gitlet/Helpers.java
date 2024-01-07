@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class Helpers {
         writeContents(saveFile, fileContent);
     }
 
-    public static void saveHead(String commitId) {
-        writeContents(HEAD_FILE, commitId);
+    public static void saveHead(String branchName) {
+        writeContents(HEAD_FILE, branchName);
     }
 
     public static void saveBranch(String commitId, String branchName) throws IOException {
@@ -102,7 +103,8 @@ public class Helpers {
      * Retrieve commitId of HEAD of the current branch
      */
     public static String retrieveHeadCommitID() {
-        return readContentsAsString(HEAD_FILE);
+        String branch = readContentsAsString(HEAD_FILE);
+        return getHeadOfBranch(branch);
     }
 
     /**
@@ -132,6 +134,11 @@ public class Helpers {
         File saveFile = join(OBJECTS_DIR, getObjectDir(blobId), getObjectFilename(blobId));
         return readContentsAsString(saveFile);
     }
+
+    public static String getCurBranch() {
+        return readContentsAsString(HEAD_FILE);
+    }
+
     /* Assert Helper methods */
     public static void assertInitialized() {
         if (!GITLET_DIR.exists()) {
@@ -206,5 +213,18 @@ public class Helpers {
         List<String> allBranchNames = plainFilenamesIn(join(REFS_DIR, "heads"));
         assert allBranchNames != null;
         return allBranchNames.contains(branchName);
+    }
+
+    public static List<String> listUntracked() {
+        CommitMapping commitMapping = retrieveMappingTree(retrieveHeadCommitID());
+        List<String> cwdFiles = plainFilenamesIn(CWD);
+        List<String> res = new ArrayList<>();
+        assert cwdFiles != null;
+        for (String filename : cwdFiles) {
+            if (!commitMapping.mapping.containsKey(filename)) {
+                res.add(filename);
+            }
+        }
+        return res;
     }
 }

@@ -58,7 +58,7 @@ public class Repository {
         Commit initialCommit = new Commit();
         String uid = sha1(initialCommit.toString());
         saveCommit(initialCommit, uid);
-        saveHead(uid);
+        saveHead("master");
         saveBranch(uid, "master");
 
         stagingArea = new StagingArea();
@@ -140,9 +140,8 @@ public class Repository {
         saveStaging();
         saveCommitsList();
 
-        // Advances head and master pointers
-        saveHead(newCommitId);
-        saveBranch(newCommitId, "master");
+        // Advances branch pointers
+        saveBranch(newCommitId, getCurBranch());
     }
 
     public static void rm(String filename) {
@@ -258,7 +257,32 @@ public class Repository {
         }
         else if (args.length == 2) {
             String branchName = args[1];
-
+            if (!isBranchExist(branchName)) {
+                message("No such branch exists.");
+                System.exit(0);
+            }
+            if (getCurBranch().equals(branchName)) {
+                message("No need to checkout the current branch.");
+                System.exit(0);
+            }
+            if (!listUntracked().isEmpty()) {
+                message("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+            List<String> cwdFile = plainFilenamesIn(CWD);
+            String headID = getHeadOfBranch(branchName);
+            CommitMapping commitMapping = retrieveMappingTree(headID);
+            assert cwdFile != null;
+            for (String filename : cwdFile) {
+                if (!commitMapping.mapping.containsKey(filename)) {
+                    restrictedDelete(join(CWD, filename));
+                }
+                else {
+                    String content = getBlobContent(commitMapping.mapping.get(filename));
+                    writeContents(join(CWD, filename), content);
+                }
+            }
+            saveHead(branchName);
         }
     }
 
