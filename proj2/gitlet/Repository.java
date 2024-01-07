@@ -210,6 +210,16 @@ public class Repository {
         // Retrieve persistence data
         stagingArea = retrieveStagingArea();
         System.out.println("=== Branches ===");
+        List<String> branches = plainFilenamesIn(join(REFS_DIR, "heads"));
+        String curHead = getCurBranch();
+        assert branches != null;
+        for (String branch : branches) {
+            if (branch.equals(curHead)) {
+                System.out.print("*");
+            }
+            System.out.println(branch);
+        }
+
         System.out.println();
 
         System.out.println("=== Staged Files ===");
