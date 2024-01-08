@@ -230,4 +230,27 @@ public class Helpers {
         }
         return res;
     }
+
+    public static void resetToACommit(String commitId) {
+        if (!listUntracked().isEmpty()) {
+            message("There is an untracked file in the way; delete it, or add and commit it first.");
+            System.exit(0);
+        }
+        List<String> cwdFile = plainFilenamesIn(CWD);
+        CommitMapping commitMapping = retrieveMappingTree(commitId);
+        assert cwdFile != null;
+        for (String filename : cwdFile) {
+            if (!commitMapping.mapping.containsKey(filename)) {
+                restrictedDelete(join(CWD, filename));
+            }
+            else {
+                String content = getBlobContent(commitMapping.mapping.get(filename));
+                writeContents(join(CWD, filename), content);
+            }
+        }
+        stagingArea = retrieveStagingArea();
+        stagingArea.addition.clear();
+        stagingArea.removal.clear();
+        saveStaging();
+    }
 }

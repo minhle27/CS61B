@@ -111,6 +111,14 @@ public class Main {
                 Repository.rmBranch(args[1]);
                 break;
             case "reset":
+                validateNumArgs("reset", args, 2);
+                assertInitialized();
+                assertStringNotEmpty(args[1]);
+                try {
+                    Repository.reset(args[1]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             case "merge":
                 break;

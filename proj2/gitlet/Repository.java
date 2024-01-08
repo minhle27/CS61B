@@ -275,27 +275,8 @@ public class Repository {
                 message("No need to checkout the current branch.");
                 System.exit(0);
             }
-            if (!listUntracked().isEmpty()) {
-                message("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
-            }
-            List<String> cwdFile = plainFilenamesIn(CWD);
             String headID = getHeadOfBranch(branchName);
-            CommitMapping commitMapping = retrieveMappingTree(headID);
-            assert cwdFile != null;
-            for (String filename : cwdFile) {
-                if (!commitMapping.mapping.containsKey(filename)) {
-                    restrictedDelete(join(CWD, filename));
-                }
-                else {
-                    String content = getBlobContent(commitMapping.mapping.get(filename));
-                    writeContents(join(CWD, filename), content);
-                }
-            }
-            stagingArea = retrieveStagingArea();
-            stagingArea.addition.clear();
-            stagingArea.removal.clear();
-            saveStaging();
+            resetToACommit(headID);
             saveHead(branchName);
         }
     }
@@ -318,5 +299,17 @@ public class Repository {
             System.exit(0);
         }
         join(REFS_DIR, "heads", branchName).delete();
+    }
+
+    public static void reset(String commitId) throws IOException {
+        String fullId = getFullId(commitId);
+        if (fullId.isEmpty()) {
+            message("No commit with that id exists.");
+            System.exit(0);
+        }
+        resetToACommit(fullId);
+        String curBranch = getCurBranch();
+        saveBranch(commitId, curBranch);
+        saveHead(curBranch);
     }
 }
