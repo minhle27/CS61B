@@ -2,9 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.List;
+import java.util.*;
 
 
 import static gitlet.Repository.*;
@@ -175,7 +173,7 @@ public class Helpers {
 
         System.out.println(cur.getMessage());
         System.out.println();
-        return cur.getPar();
+        return cur.getPar1();
     }
 
     /** Modify the content of a file in CWD to its version in CommitId
@@ -252,5 +250,56 @@ public class Helpers {
         stagingArea.addition.clear();
         stagingArea.removal.clear();
         saveStaging();
+    }
+
+    private static void bfs(String s, Map<String, Integer> color) {
+        Queue<String> q = new LinkedList<>();
+        Set<String> vis = new TreeSet<>();
+        q.add(s);
+        vis.add(s);
+
+        while (!q.isEmpty()) {
+            String curId = q.remove();
+            if (color.containsKey(curId)) {
+                int curCol = color.get(curId);
+                color.put(curId, curCol + 1);
+            } else {
+                color.put(curId, 1);
+            }
+            Commit curCommit = retrieveCommitObj(curId);
+            String par1Id = curCommit.getPar1();
+            String par2Id = curCommit.getPar2();
+            if (!par1Id.isEmpty() && !vis.contains(par1Id)) {
+                vis.add(par1Id);
+                q.add(par1Id);
+            }
+            if (!par2Id.isEmpty() && !vis.contains(par2Id)) {
+                vis.add(par2Id);
+                q.add(par2Id);
+            }
+        }
+    }
+    public static String findLCA(String node1, String node2) {
+        Map<String, Integer> color = new TreeMap<>();
+        bfs(node1, color);
+        bfs(node2, color);
+        Set<String> notLCA = new TreeSet<>();
+
+        for(Map.Entry<String, Integer> entry : color.entrySet()) {
+            if (entry.getValue() == 2) {
+                Commit cur = retrieveCommitObj(entry.getKey());
+                String par1Id = cur.getPar1();
+                String par2Id = cur.getPar2();
+                notLCA.add(par1Id);
+                notLCA.add(par2Id);
+            }
+        }
+
+        for(Map.Entry<String, Integer> entry : color.entrySet()) {
+            if (entry.getValue() == 2 && !notLCA.contains(entry.getKey())) {
+                return entry.getKey();
+            }
+        }
+        return "";
     }
 }
