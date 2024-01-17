@@ -1,6 +1,5 @@
 package gitlet;
 
-import javax.sound.midi.Soundbank;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -320,7 +319,7 @@ public class Repository {
             message("You have uncommitted changes.");
             System.exit(0);
         }
-        saveStaging();
+        stagingArea = null;
 
         if (branch.equals(getCurBranch())) {
             message("Cannot merge a branch with itself.");
@@ -370,7 +369,7 @@ public class Repository {
 
             if (isSE(blobHead, blobSplit) && isSNE(blobGiven, blobSplit)) {
                 // 1: modified in other but not head => other
-                modifyFile(filename, blobGiven);
+                modifyFile(filename, getBlobContent(blobGiven));
                 addFile(filename);
             }
             // 2: modified in head but not other => head (do nothing)
@@ -378,7 +377,7 @@ public class Repository {
             // 4: not in split nor other but in head => head (do nothing)
             // 5: not in split nor head but in other => other
             else if (blobSplit == null && blobHead == null && blobGiven != null) {
-                modifyFile(filename, blobGiven);
+                modifyFile(filename, getBlobContent(blobGiven));
                 addFile(filename);
             }
             // 6: unmodified in head but not present in other => remove
@@ -409,12 +408,11 @@ public class Repository {
                 modifyFile(filename, contents);
                 addFile(filename);
             }
-
-            String logMessage = "Merged " + branch + " into " + getCurBranch() + ".";
-            commit(logMessage, givenBranchHead);
-            if (isConflict) {
-                message("Encountered a merge conflict.");
-            }
+        }
+        String logMessage = "Merged " + branch + " into " + getCurBranch() + ".";
+        commit(logMessage, givenBranchHead);
+        if (isConflict) {
+            message("Encountered a merge conflict.");
         }
     }
 }

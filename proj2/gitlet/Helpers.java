@@ -173,6 +173,11 @@ public class Helpers {
         System.out.println("===");
         System.out.println("commit " + curId);
 
+        if (!cur.getPar2().isEmpty()) {
+            System.out.printf("Merge: %s %s", cur.getPar1().substring(0, 7), cur.getPar2().substring(0, 7));
+            System.out.println();
+        }
+
         StringBuilder formattedDate = new StringBuilder();
         Formatter formatter = new Formatter(formattedDate);
         formatter.format("%1$ta %1$tb %1$td %1$tT %1$tY %1$tz", cur.getTimestamp());
