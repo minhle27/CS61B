@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 public class StagingArea implements Serializable, Dumpable {
-    public TreeMap<String, String> addition;
-    public TreeMap<String, String> removal;
+    TreeMap<String, String> addition;
+    TreeMap<String, String> removal;
 
     public StagingArea() {
         addition = new TreeMap<>();

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommitHistory implements Serializable, Dumpable {
-    public List<String> curList;
+    List<String> curList;
     public CommitHistory() {
         curList = new ArrayList<>();
     }

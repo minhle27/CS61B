@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.TreeMap;
 
 public class CommitMapping implements Serializable, Dumpable {
-    public TreeMap<String, String> mapping;
+    TreeMap<String, String> mapping;
     public CommitMapping() {
         mapping = new TreeMap<>();
     }

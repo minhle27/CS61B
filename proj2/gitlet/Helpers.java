@@ -15,13 +15,13 @@ import static gitlet.Utils.*;
 
 public class Helpers {
     /* Helper methods that help save things to file system */
-    /** Given a SHA1 hash, isolates the first two char for dir name and the remaining for file name. */
-    public static String getObjectDir(String ObjId) {
-        return ObjId.substring(0, 2);
+    /** Given a SHA1, isolates the first two char for dir name and the rest for file name. */
+    public static String getObjectDir(String objId) {
+        return objId.substring(0, 2);
     }
 
-    public static String getObjectFilename(String ObjId) {
-        return ObjId.substring(2);
+    public static String getObjectFilename(String objId) {
+        return objId.substring(2);
     }
 
     /** Save a Commit obj in OBJECTS_DIR. */
@@ -79,7 +79,9 @@ public class Helpers {
      * Retrieve commitObj from commitId
      */
     public static Commit retrieveCommitObj(String commitId) {
-        File savedCommitFile = join(OBJECTS_DIR, getObjectDir(commitId), getObjectFilename(commitId));
+        File savedCommitFile = join(OBJECTS_DIR,
+                getObjectDir(commitId),
+                getObjectFilename(commitId));
         return readObject(savedCommitFile, Commit.class);
     }
 
@@ -93,7 +95,9 @@ public class Helpers {
         if (mappingTreeId.isEmpty()) {
             return new CommitMapping();
         }
-        File mappingTreeFile = join(OBJECTS_DIR, getObjectDir(mappingTreeId), getObjectFilename(mappingTreeId));
+        File mappingTreeFile = join(OBJECTS_DIR,
+                getObjectDir(mappingTreeId),
+                getObjectFilename(mappingTreeId));
         return readObject(mappingTreeFile, CommitMapping.class);
     }
 
@@ -174,7 +178,9 @@ public class Helpers {
         System.out.println("commit " + curId);
 
         if (!cur.getPar2().isEmpty()) {
-            System.out.printf("Merge: %s %s", cur.getPar1().substring(0, 7), cur.getPar2().substring(0, 7));
+            System.out.printf("Merge: %s %s",
+                    cur.getPar1().substring(0, 7),
+                    cur.getPar2().substring(0, 7));
             System.out.println();
         }
 
@@ -201,7 +207,8 @@ public class Helpers {
         modifyFile(filename, getBlobContent(blobId));
     }
 
-    public static void modifyFile(String filename, String contents) throws IOException {
+    /** Modify a file to have a particular content */
+    public static void modifyFile(String filename, Object... contents) throws IOException {
         File curFile = join(CWD, filename);
         if (!curFile.exists()) {
             curFile.createNewFile();
@@ -214,7 +221,7 @@ public class Helpers {
         String objSubDir = getObjectDir(objId);
         List<String> fileList = plainFilenamesIn(join(OBJECTS_DIR, objSubDir));
         if (fileList == null || fileList.isEmpty()) {
-           return "";
+            return "";
         }
         for (String each : fileList) {
             if (each.startsWith(objId.substring(2))) {
@@ -231,6 +238,7 @@ public class Helpers {
         return allBranchNames.contains(branchName);
     }
 
+    /** List untracked files in CWD */
     public static List<String> listUntracked() {
         CommitMapping commitMapping = retrieveMappingTree(retrieveHeadCommitID());
         List<String> cwdFiles = plainFilenamesIn(CWD);
@@ -238,8 +246,9 @@ public class Helpers {
         assert cwdFiles != null;
         StagingArea cur = retrieveStagingArea();
         for (String filename : cwdFiles) {
-            if (!commitMapping.mapping.containsKey(filename) && !cur.addition.containsKey(filename) ||
-                cur.removal.containsKey(filename)
+            if (!commitMapping.mapping.containsKey(filename)
+                    && !cur.addition.containsKey(filename)
+                    || cur.removal.containsKey(filename)
             ) {
                 res.add(filename);
             }
@@ -262,7 +271,7 @@ public class Helpers {
             }
         }
 
-        for(Map.Entry<String, String> entry : commitMapping.mapping.entrySet()) {
+        for (Map.Entry<String, String> entry : commitMapping.mapping.entrySet()) {
             String filename = entry.getKey();
             String content = getBlobContent(commitMapping.mapping.get(filename));
             modifyFile(filename, content);
@@ -274,6 +283,7 @@ public class Helpers {
         saveStaging();
     }
 
+    /** Commit graph traversal helper method */
     private static void bfs(String s, Map<String, Integer> color) {
         Queue<String> q = new LinkedList<>();
         Set<String> vis = new TreeSet<>();
@@ -301,13 +311,15 @@ public class Helpers {
             }
         }
     }
+
+    /** Find latest common ancestor of any two commit nodes */
     public static String findLCA(String node1, String node2) {
         Map<String, Integer> color = new TreeMap<>();
         bfs(node1, color);
         bfs(node2, color);
         Set<String> notLCA = new TreeSet<>();
 
-        for(Map.Entry<String, Integer> entry : color.entrySet()) {
+        for (Map.Entry<String, Integer> entry : color.entrySet()) {
             if (entry.getValue() == 2) {
                 Commit cur = retrieveCommitObj(entry.getKey());
                 String par1Id = cur.getPar1();
@@ -317,7 +329,7 @@ public class Helpers {
             }
         }
 
-        for(Map.Entry<String, Integer> entry : color.entrySet()) {
+        for (Map.Entry<String, Integer> entry : color.entrySet()) {
             if (entry.getValue() == 2 && !notLCA.contains(entry.getKey())) {
                 return entry.getKey();
             }
@@ -325,13 +337,32 @@ public class Helpers {
         return "";
     }
 
+    /** Return true if String s1 equals String s2 and both are not null */
     public static boolean isSE(String s1, String s2) {
-        if (s1 == null || s2 == null) return false;
+        if (s1 == null || s2 == null) {
+            return false;
+        }
         return s1.equals(s2);
     }
 
+    /** Return true if String s1 does not equal String s2 and both are not null */
     public static boolean isSNE(String s1, String s2) {
-        if (s1 == null || s2 == null) return false;
+        if (s1 == null || s2 == null) {
+            return false;
+        }
         return !s1.equals(s2);
+    }
+
+    /** Return a set of distinct files in different commits */
+    public static Set<String> getAllFilesInCommits(CommitMapping[] commitMappings) {
+        Set<String> fileList = new TreeSet<>();
+        for (int i = 0; i < commitMappings.length; i++) {
+            CommitMapping cur = commitMappings[i];
+            for (Map.Entry<String, String> entry : cur.mapping.entrySet()) {
+                String filename = entry.getKey();
+                fileList.add(filename);
+            }
+        }
+        return fileList;
     }
 }

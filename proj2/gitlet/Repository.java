@@ -21,8 +21,8 @@ public class Repository {
     public static final File INDEX_FILE = join(GITLET_DIR, "index");
     public static final File REFS_DIR = join(GITLET_DIR, "refs");
     public static final File COMMITS_LIST_FILE = join(OBJECTS_DIR, "commitList");
-    public static StagingArea stagingArea;
-    public static CommitHistory commitHistory;
+    static StagingArea stagingArea;
+    static CommitHistory commitHistory;
 
     /** Set up files and directories to persist data */
     public static void setupPersistence() throws IOException {
@@ -69,8 +69,7 @@ public class Repository {
             if (stagingArea.addition.containsKey(filename)) {
                 stagingArea.addition.remove(filename);
                 saveStaging();
-            }
-            else if (stagingArea.removal.containsKey(filename)) {
+            } else if (stagingArea.removal.containsKey(filename)) {
                 stagingArea.removal.remove(filename);
                 saveStaging();
             }
@@ -105,13 +104,13 @@ public class Repository {
         CommitMapping mappingTree = retrieveMappingTree(curCommitId);
 
         // combine cur commit mapping with staging area
-        for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
+        for (Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
             String filename = entry.getKey();
             String blob = entry.getValue();
             mappingTree.mapping.put(filename, blob);
         }
 
-        for(Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
+        for (Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
             String filename = entry.getKey();
             mappingTree.mapping.remove(filename);
         }
@@ -155,7 +154,7 @@ public class Repository {
 
     public static void log() {
         String curId = retrieveHeadCommitID();
-        while(!curId.isEmpty()) {
+        while (!curId.isEmpty()) {
             curId = printCommitInfo(curId);
         }
     }
@@ -207,14 +206,14 @@ public class Repository {
         System.out.println();
 
         System.out.println("=== Staged Files ===");
-        for(Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
+        for (Map.Entry<String, String> entry : stagingArea.addition.entrySet()) {
             String filename = entry.getKey();
             System.out.println(filename);
         }
         System.out.println();
 
         System.out.println("=== Removed Files ===");
-        for(Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
+        for (Map.Entry<String, String> entry : stagingArea.removal.entrySet()) {
             String filename = entry.getKey();
             System.out.println(filename);
         }
@@ -236,8 +235,7 @@ public class Repository {
             String filename = args[2];
             String headCommitID = retrieveHeadCommitID();
             changeFileVer(filename, headCommitID);
-        }
-        else if (args.length == 4) {
+        } else if (args.length == 4) {
             if (!args[2].equals("--")) {
                 message("Incorrect operands.");
                 System.exit(0);
@@ -254,8 +252,7 @@ public class Repository {
                 System.exit(0);
             }
             changeFileVer(filename, commitId);
-        }
-        else if (args.length == 2) {
+        } else if (args.length == 2) {
             String branchName = args[1];
             if (!isBranchExist(branchName)) {
                 message("No such branch exists.");
@@ -304,32 +301,28 @@ public class Repository {
     }
 
     public static void merge(String branch) throws IOException {
+        // handle failure cases
         if (!listUntracked().isEmpty()) {
             message("There is an untracked file in the way; delete it, or add and commit it first.");
             System.exit(0);
         }
-
         if (!isBranchExist(branch)) {
             message("A branch with that name does not exist.");
             System.exit(0);
         }
-
         stagingArea = retrieveStagingArea();
         if (!stagingArea.addition.isEmpty() || !stagingArea.removal.isEmpty()) {
             message("You have uncommitted changes.");
             System.exit(0);
         }
         stagingArea = null;
-
         if (branch.equals(getCurBranch())) {
             message("Cannot merge a branch with itself.");
             System.exit(0);
         }
-
         String curHead = retrieveHeadCommitID();
         String givenBranchHead = getHeadOfBranch(branch);
         String splitId = findLCA(curHead, givenBranchHead);
-
         if (splitId.equals(givenBranchHead)) {
             message("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -346,76 +339,38 @@ public class Repository {
         CommitMapping splitNodeMap = retrieveMappingTree(splitId);
         CommitMapping curHeadMap = retrieveMappingTree(curHead);
         CommitMapping givenNodeMap = retrieveMappingTree(givenBranchHead);
+        Set<String> fileList = getAllFilesInCommits(new CommitMapping[]{
+                splitNodeMap, curHeadMap, givenNodeMap
+        });
+
         boolean isConflict = false;
-
-        Set<String> fileList = new TreeSet<>();
-        for(Map.Entry<String, String> entry : splitNodeMap.mapping.entrySet()) {
-            String filename = entry.getKey();
-            fileList.add(filename);
-        }
-        for(Map.Entry<String, String> entry : curHeadMap.mapping.entrySet()) {
-            String filename = entry.getKey();
-            fileList.add(filename);
-        }
-        for(Map.Entry<String, String> entry : givenNodeMap.mapping.entrySet()) {
-            String filename = entry.getKey();
-            fileList.add(filename);
-        }
-
         for (String filename : fileList) {
             String blobHead = curHeadMap.mapping.get(filename);
             String blobGiven = givenNodeMap.mapping.get(filename);
             String blobSplit = splitNodeMap.mapping.get(filename);
-
             if (isSE(blobHead, blobSplit) && isSNE(blobGiven, blobSplit)) {
-                // 1: modified in other but not head => other
                 modifyFile(filename, getBlobContent(blobGiven));
                 addFile(filename);
-            }
-            // 2: modified in head but not other => head (do nothing)
-            // 3: modified in other and head in same way (do nothing)
-            // 4: not in split nor other but in head => head (do nothing)
-            // 5: not in split nor head but in other => other
-            else if (blobSplit == null && blobHead == null && blobGiven != null) {
+            } else if (blobSplit == null && blobHead == null && blobGiven != null) {
                 modifyFile(filename, getBlobContent(blobGiven));
                 addFile(filename);
-            }
-            // 6: unmodified in head but not present in other => remove
-            else if (isSE(blobHead, blobSplit) && blobGiven == null) {
+            } else if (isSE(blobHead, blobSplit) && blobGiven == null) {
                 rm(filename);
-            }
-            // 7: unmodified in other but not present in head => remain remove (do nothing)
-            // 8: modified in other and head in different way
-            else if (isSNE(blobHead, blobGiven) && isSNE(blobHead, blobSplit) && isSNE(blobGiven, blobSplit)
+            } else if (isSNE(blobHead, blobGiven)
+                    && isSNE(blobHead, blobSplit)
+                    && isSNE(blobGiven, blobSplit)
                     || blobHead == null && isSNE(blobGiven, blobSplit)
                     || blobGiven == null && isSNE(blobHead, blobSplit)
                     || blobSplit == null && isSNE(blobGiven, blobHead)) {
-                String headContent; String givenContent;
                 isConflict = true;
-                if (blobHead == null) {
-                    headContent = "";
-                }
-                else {
-                    headContent = getBlobContent(blobHead);
-                }
-                if (blobGiven == null) {
-                    givenContent = "";
-                }
-                else {
-                    givenContent = getBlobContent(blobGiven);
-                }
-                File curFile = join(CWD, filename);
-                if (!curFile.exists()) {
-                    curFile.createNewFile();
-                }
-                writeContents(curFile, "<<<<<<< HEAD\n", headContent, "=======\n", givenContent, ">>>>>>>\n");
+                String headContent = (blobHead == null) ? "" : getBlobContent(blobHead);
+                String givenContent = (blobGiven == null) ? "" : getBlobContent(blobGiven);
+                modifyFile(filename, "<<<<<<< HEAD\n", headContent, "=======\n", givenContent, ">>>>>>>\n");
                 addFile(filename);
             }
         }
         String logMessage = "Merged " + branch + " into " + getCurBranch() + ".";
         commit(logMessage, givenBranchHead);
-        if (isConflict) {
-            message("Encountered a merge conflict.");
-        }
+        if (isConflict) { message("Encountered a merge conflict."); }
     }
 }
