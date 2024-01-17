@@ -208,7 +208,9 @@ public class Helpers {
     public static String getFullId(String objId) {
         String objSubDir = getObjectDir(objId);
         List<String> fileList = plainFilenamesIn(join(OBJECTS_DIR, objSubDir));
-        assert fileList != null;
+        if (fileList == null || fileList.isEmpty()) {
+           return "";
+        }
         for (String each : fileList) {
             if (each.startsWith(objId.substring(2))) {
                 return objSubDir + each;
@@ -240,7 +242,7 @@ public class Helpers {
         return res;
     }
 
-    public static void resetToACommit(String commitId) {
+    public static void resetToACommit(String commitId) throws IOException {
         if (!listUntracked().isEmpty()) {
             message("There is an untracked file in the way; delete it, or add and commit it first.");
             System.exit(0);
@@ -248,15 +250,19 @@ public class Helpers {
         List<String> cwdFile = plainFilenamesIn(CWD);
         CommitMapping commitMapping = retrieveMappingTree(commitId);
         assert cwdFile != null;
+
         for (String filename : cwdFile) {
             if (!commitMapping.mapping.containsKey(filename)) {
                 restrictedDelete(join(CWD, filename));
             }
-            else {
-                String content = getBlobContent(commitMapping.mapping.get(filename));
-                writeContents(join(CWD, filename), content);
-            }
         }
+
+        for(Map.Entry<String, String> entry : commitMapping.mapping.entrySet()) {
+            String filename = entry.getKey();
+            String content = getBlobContent(commitMapping.mapping.get(filename));
+            modifyFile(filename, content);
+        }
+
         stagingArea = retrieveStagingArea();
         stagingArea.addition.clear();
         stagingArea.removal.clear();

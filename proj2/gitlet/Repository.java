@@ -178,7 +178,6 @@ public class Repository {
             message("No commit history.");
             System.exit(0);
         }
-        System.out.println("Commit with the message: " + message);
         boolean haveCommits = false;
         for (String commitId : allCommits.curList) {
             Commit cur = retrieveCommitObj(commitId);
@@ -241,7 +240,7 @@ public class Repository {
         }
         else if (args.length == 4) {
             if (!args[2].equals("--")) {
-                message("Wrong format of checkout command.");
+                message("Incorrect operands.");
                 System.exit(0);
             }
             String filename = args[3];
