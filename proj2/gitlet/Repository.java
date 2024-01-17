@@ -404,7 +404,7 @@ public class Repository {
                 else {
                     givenContent = getBlobContent(blobGiven);
                 }
-                String contents = String.format("<<<<<<< HEAD%n%s=======%n%s>>>>>>>", headContent , givenContent);
+                String contents = "<<<<<<< HEAD" + "\n" + headContent + "=======" + "\n" + givenContent + ">>>>>>>";
                 modifyFile(filename, contents);
                 addFile(filename);
             }
