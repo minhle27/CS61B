@@ -2,9 +2,8 @@ package gitlet;
 
 import java.io.IOException;
 
-import static gitlet.Helpers.assertStringNotEmpty;
+import static gitlet.Helpers.*;
 import static gitlet.Utils.message;
-import static gitlet.Helpers.assertInitialized;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author Minh Le
@@ -44,7 +43,7 @@ public class Main {
                 validateNumArgs("commit", args, 2);
                 assertInitialized();
                 String message = args[1];
-                assertStringNotEmpty(message);
+                assertCommitNotEmpty(message);
                 try {
                     Repository.commit(message, "");
                 } catch (IOException e) {

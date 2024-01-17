@@ -147,7 +147,14 @@ public class Helpers {
 
     public static void assertStringNotEmpty(String message) {
         if (message.isEmpty()) {
-            message("Please enter provide a non-empty string.");
+            message("Please provide a non-empty string.");
+            System.exit(0);
+        }
+    }
+
+    public static void assertCommitNotEmpty(String message) {
+        if (message.isEmpty()) {
+            message("Please enter a commit message.");
             System.exit(0);
         }
     }
