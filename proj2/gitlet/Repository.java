@@ -404,7 +404,11 @@ public class Repository {
                 else {
                     givenContent = getBlobContent(blobGiven);
                 }
-                modifyFile(filename, "<<<<<<< HEAD" + "\n" + headContent + "=======" + "\n" + givenContent + ">>>>>>>");
+                File curFile = join(CWD, filename);
+                if (!curFile.exists()) {
+                    curFile.createNewFile();
+                }
+                writeContents(curFile, "<<<<<<< HEAD\n", headContent, "=======\n", givenContent, ">>>>>>>\n");
                 addFile(filename);
             }
         }
