@@ -15,7 +15,6 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ... 
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
         if (args.length == 0) {
             message("Please enter a command.");
             System.exit(0);
@@ -23,7 +22,6 @@ public class Main {
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
-                // TODO: handle the `init` command
                 validateNumArgs("init", args, 1);
                 try {
                     Repository.initGitLet();
@@ -42,7 +40,6 @@ public class Main {
                     throw new RuntimeException(e);
                 }
                 break;
-            // TODO: FILL THE REST IN
             case "commit":
                 validateNumArgs("commit", args, 2);
                 assertInitialized();
