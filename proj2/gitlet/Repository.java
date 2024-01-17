@@ -404,8 +404,7 @@ public class Repository {
                 else {
                     givenContent = getBlobContent(blobGiven);
                 }
-                String contents = "<<<<<<< HEAD" + "\n" + headContent + "=======" + "\n" + givenContent + ">>>>>>>";
-                modifyFile(filename, contents);
+                modifyFile(filename, "<<<<<<< HEAD" + "\n" + headContent + "=======" + "\n" + givenContent + ">>>>>>>");
                 addFile(filename);
             }
         }
