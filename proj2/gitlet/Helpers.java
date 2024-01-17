@@ -238,7 +238,7 @@ public class Helpers {
         assert cwdFiles != null;
         StagingArea cur = retrieveStagingArea();
         for (String filename : cwdFiles) {
-            if (!commitMapping.mapping.containsKey(filename) ||
+            if (!commitMapping.mapping.containsKey(filename) && !cur.addition.containsKey(filename) ||
                 cur.removal.containsKey(filename)
             ) {
                 res.add(filename);
