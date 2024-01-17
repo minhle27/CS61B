@@ -74,9 +74,6 @@ public class Repository {
                 stagingArea.removal.remove(filename);
                 saveStaging();
             }
-            else {
-                message("No changes in this file.");
-            }
             System.exit(0);
         }
 
@@ -136,7 +133,6 @@ public class Repository {
 
     public static void rm(String filename) {
         File toRm = join(CWD, filename);
-        assertFileExists(toRm);
         stagingArea = retrieveStagingArea();
         CommitMapping headMapping = getMappingOfHead();
 
