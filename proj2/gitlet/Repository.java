@@ -221,6 +221,12 @@ public class Repository {
             System.out.println(filename);
         }
         System.out.println();
+
+        System.out.println("=== Modifications Not Staged For Commit ===");
+        System.out.println();
+
+        System.out.println("=== Untracked Files ===");
+        System.out.println();
     }
 
     public static void checkout(String[] args) throws IOException {
