@@ -70,6 +70,10 @@ public class Repository {
                 stagingArea.addition.remove(filename);
                 saveStaging();
             }
+            else if (stagingArea.removal.containsKey(filename)) {
+                stagingArea.removal.remove(filename);
+                saveStaging();
+            }
             else {
                 message("No changes in this file.");
             }
