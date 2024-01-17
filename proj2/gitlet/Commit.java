@@ -36,12 +36,12 @@ public class Commit implements Serializable, Dumpable {
     /** The reference of mapping data structure. */
     private String mapping;
 
-    public Commit(String message, String par1, String mapping) {
+    public Commit(String message, String par1, String par2, String mapping) {
         this.message = message;
         this.timestamp = new Date();
         this.par1 = par1;
         this.mapping = mapping;
-        this.par2 = "";
+        this.par2 = par2;
     }
 
     public Commit() {

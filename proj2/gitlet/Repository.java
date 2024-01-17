@@ -2,8 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Helpers.*;
 import static gitlet.Utils.*;
@@ -103,7 +102,7 @@ public class Repository {
         saveStaging();
     }
 
-    public static void commit(String message) throws IOException {
+    public static void commit(String message, String par2) throws IOException {
         // retrieve persistence data
         stagingArea = retrieveStagingArea();
         commitHistory = getAllCommits();
@@ -130,7 +129,7 @@ public class Repository {
         }
 
         String mappingTreeUid = sha1(mappingTree.toString());
-        Commit newCommit = new Commit(message, curCommitId, mappingTreeUid);
+        Commit newCommit = new Commit(message, curCommitId, par2, mappingTreeUid);
         String newCommitId = sha1(newCommit.toString());
         saveCommit(newCommit, newCommitId);
         saveCommitMapping(mappingTreeUid, mappingTree);
@@ -311,5 +310,119 @@ public class Repository {
         String curBranch = getCurBranch();
         saveBranch(commitId, curBranch);
         saveHead(curBranch);
+    }
+
+    public static void merge(String branch) throws IOException {
+        if (!listUntracked().isEmpty()) {
+            message("There is an untracked file in the way; delete it, or add and commit it first.");
+            System.exit(0);
+        }
+
+        if (!isBranchExist(branch)) {
+            message("A branch with that name does not exist.");
+            System.exit(0);
+        }
+
+        StagingArea stagingArea = retrieveStagingArea();
+        if (!stagingArea.addition.isEmpty() || !stagingArea.removal.isEmpty()) {
+            message("You have uncommitted changes.");
+            System.exit(0);
+        }
+        saveStaging();
+
+        if (branch.equals(getCurBranch())) {
+            message("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+
+        String curHead = retrieveHeadCommitID();
+        String givenBranchHead = getHeadOfBranch(branch);
+        String splitId = findLCA(curHead, givenBranchHead);
+
+        if (splitId.equals(givenBranchHead)) {
+            message("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        } else if (splitId.equals(curHead)) {
+            resetToACommit(givenBranchHead);
+            saveHead(branch);
+            message("Current branch fast-forwarded.");
+            System.exit(0);
+        } else if (splitId.isEmpty()) {
+            message("Could not find split point.");
+            System.exit(0);
+        }
+
+        CommitMapping splitNodeMap = retrieveMappingTree(splitId);
+        CommitMapping curHeadMap = retrieveMappingTree(curHead);
+        CommitMapping givenNodeMap = retrieveMappingTree(givenBranchHead);
+        boolean isConflict = false;
+
+        Set<String> fileList = new TreeSet<>();
+        for(Map.Entry<String, String> entry : splitNodeMap.mapping.entrySet()) {
+            String filename = entry.getKey();
+            fileList.add(filename);
+        }
+        for(Map.Entry<String, String> entry : curHeadMap.mapping.entrySet()) {
+            String filename = entry.getKey();
+            fileList.add(filename);
+        }
+        for(Map.Entry<String, String> entry : givenNodeMap.mapping.entrySet()) {
+            String filename = entry.getKey();
+            fileList.add(filename);
+        }
+
+        for (String filename : fileList) {
+            String blobHead = curHeadMap.mapping.get(filename);
+            String blobGiven = givenNodeMap.mapping.get(filename);
+            String blobSplit = splitNodeMap.mapping.get(filename);
+
+            if (isSE(blobHead, blobSplit) && isSNE(blobGiven, blobSplit)) {
+                // 1: modified in other but not head => other
+                modifyFile(filename, blobGiven);
+                addFile(filename);
+            }
+            // 2: modified in head but not other => head (do nothing)
+            // 3: modified in other and head in same way (do nothing)
+            // 4: not in split nor other but in head => head (do nothing)
+            // 5: not in split nor head but in other => other
+            else if (blobSplit == null && blobHead == null && blobGiven != null) {
+                modifyFile(filename, blobGiven);
+                addFile(filename);
+            }
+            // 6: unmodified in head but not present in other => remove
+            else if (isSE(blobHead, blobSplit) && blobGiven == null) {
+                rm(filename);
+            }
+            // 7: unmodified in other but not present in head => remain remove (do nothing)
+            // 8: modified in other and head in different way
+            else if (isSNE(blobHead, blobGiven) && isSNE(blobHead, blobSplit) && isSNE(blobGiven, blobSplit)
+                    || blobHead == null && isSNE(blobGiven, blobSplit)
+                    || blobGiven == null && isSNE(blobHead, blobSplit)
+                    || blobSplit == null && isSNE(blobGiven, blobHead)) {
+                String headContent; String givenContent;
+                isConflict = true;
+                if (blobHead == null) {
+                    headContent = "";
+                }
+                else {
+                    headContent = getBlobContent(blobHead);
+                }
+                if (blobGiven == null) {
+                    givenContent = "";
+                }
+                else {
+                    givenContent = getBlobContent(blobGiven);
+                }
+                String contents = String.format("<<<<<<< HEAD%n%s%n=======%n%s%n>>>>>>>", headContent , givenContent);
+                modifyFile(filename, contents);
+                addFile(filename);
+            }
+
+            String logMessage = "Merged " + branch + " into " + getCurBranch() + ".";
+            commit(logMessage, givenBranchHead);
+            if (isConflict) {
+                message("Encountered a merge conflict.");
+            }
+        }
     }
 }

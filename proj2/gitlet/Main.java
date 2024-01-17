@@ -49,7 +49,7 @@ public class Main {
                 String message = args[1];
                 assertStringNotEmpty(message);
                 try {
-                    Repository.commit(message);
+                    Repository.commit(message, "");
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -121,6 +121,14 @@ public class Main {
                 }
                 break;
             case "merge":
+                validateNumArgs("merge", args, 2);
+                assertInitialized();
+                assertStringNotEmpty(args[1]);
+                try {
+                    Repository.merge(args[1]);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
             default:
                 message("No command with that name exists.");

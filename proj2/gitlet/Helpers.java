@@ -186,11 +186,15 @@ public class Helpers {
             System.exit(0);
         }
         String blobId = cur.mapping.get(filename);
+        modifyFile(filename, getBlobContent(blobId));
+    }
+
+    public static void modifyFile(String filename, String contents) throws IOException {
         File curFile = join(CWD, filename);
         if (!curFile.exists()) {
             curFile.createNewFile();
         }
-        writeContents(curFile, getBlobContent(blobId));
+        writeContents(curFile, contents);
     }
 
     /** Return the full object id from the abbreviated version */
@@ -301,5 +305,15 @@ public class Helpers {
             }
         }
         return "";
+    }
+
+    public static boolean isSE(String s1, String s2) {
+        if (s1 == null || s2 == null) return false;
+        return s1.equals(s2);
+    }
+
+    public static boolean isSNE(String s1, String s2) {
+        if (s1 == null || s2 == null) return false;
+        return !s1.equals(s2);
     }
 }
