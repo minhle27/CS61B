@@ -1,5 +1,6 @@
 package gitlet;
 
+import javax.sound.midi.Soundbank;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -132,7 +133,6 @@ public class Repository {
     }
 
     public static void rm(String filename) {
-        File toRm = join(CWD, filename);
         stagingArea = retrieveStagingArea();
         CommitMapping headMapping = getMappingOfHead();
 
@@ -315,7 +315,7 @@ public class Repository {
             System.exit(0);
         }
 
-        StagingArea stagingArea = retrieveStagingArea();
+        stagingArea = retrieveStagingArea();
         if (!stagingArea.addition.isEmpty() || !stagingArea.removal.isEmpty()) {
             message("You have uncommitted changes.");
             System.exit(0);
