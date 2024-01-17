@@ -258,7 +258,8 @@ public class Helpers {
 
     public static void resetToACommit(String commitId) throws IOException {
         if (!listUntracked().isEmpty()) {
-            message("There is an untracked file in the way; delete it, or add and commit it first.");
+            message("There is an untracked file in the way; " +
+                    "delete it, or add and commit it first.");
             System.exit(0);
         }
         List<String> cwdFile = plainFilenamesIn(CWD);

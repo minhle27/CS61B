@@ -303,7 +303,8 @@ public class Repository {
     public static void merge(String branch) throws IOException {
         // handle failure cases
         if (!listUntracked().isEmpty()) {
-            message("There is an untracked file in the way; delete it, or add and commit it first.");
+            message("There is an untracked file in the way; " +
+                    "delete it, or add and commit it first.");
             System.exit(0);
         }
         if (!isBranchExist(branch)) {
@@ -339,9 +340,9 @@ public class Repository {
         CommitMapping splitNodeMap = retrieveMappingTree(splitId);
         CommitMapping curHeadMap = retrieveMappingTree(curHead);
         CommitMapping givenNodeMap = retrieveMappingTree(givenBranchHead);
-        Set<String> fileList = getAllFilesInCommits(new CommitMapping[]{
-                splitNodeMap, curHeadMap, givenNodeMap
-        });
+        Set<String> fileList = getAllFilesInCommits(
+                new CommitMapping[]{ splitNodeMap, curHeadMap, givenNodeMap }
+        );
 
         boolean isConflict = false;
         for (String filename : fileList) {
@@ -365,12 +366,15 @@ public class Repository {
                 isConflict = true;
                 String headContent = (blobHead == null) ? "" : getBlobContent(blobHead);
                 String givenContent = (blobGiven == null) ? "" : getBlobContent(blobGiven);
-                modifyFile(filename, "<<<<<<< HEAD\n", headContent, "=======\n", givenContent, ">>>>>>>\n");
+                modifyFile(filename, "<<<<<<< HEAD\n", headContent,
+                        "=======\n", givenContent, ">>>>>>>\n");
                 addFile(filename);
             }
         }
         String logMessage = "Merged " + branch + " into " + getCurBranch() + ".";
         commit(logMessage, givenBranchHead);
-        if (isConflict) { message("Encountered a merge conflict."); }
+        if (isConflict) {
+            message("Encountered a merge conflict.");
+        }
     }
 }
